@@ -1,7 +1,7 @@
 package com.example.app_compuservic.repositorios
 
 import com.example.app_compuservic.modelos.EstadoUsuario
-import com.example.app_compuservic.repositorios.FireStoreColeccion.*
+import com.example.app_compuservic.repositorios.datoEnum.FireStoreColeccion.*
 import com.example.app_compuservic.modelos.Usuario
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -19,9 +19,13 @@ class FireStoreRepositorio {
                 store.collection(USUARIOS.valor).document(uid).set(nuevoUsuario).await()
                 EstadoUsuario.Exito
             } catch (e: Exception) {
-                EstadoUsuario.Error(e.message.toString())
+                EstadoUsuario.Error(e.message ?: "Error desconocido")
             }
         }
     }
+
+
+
+
 
 }

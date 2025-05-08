@@ -10,6 +10,7 @@ class FireBaseAuthStoreRepositorio(
     private val store: FireStoreRepositorio = FireStoreRepositorio()
 ) {
 
+    // AGREGAR USUARIO EN FIRESTORE
     suspend fun crearUsuario(
         email: String,
         password: String,
@@ -17,14 +18,15 @@ class FireBaseAuthStoreRepositorio(
     ): EstadoUsuario {
         return withContext(Dispatchers.IO) {
             try {
-                val uid = auth.registerUsuario(email, password)
+                val result = auth.registerUsuario(email, password)
+                val uid = result.user?.uid
                 if (uid != null) {
                     store.agregarDatosUsuario(uid, nuevoUsuario)
                 } else {
                     EstadoUsuario.Error("UID no disponible")
                 }
             } catch (e: Exception) {
-                EstadoUsuario.Error(e.message.toString())
+                EstadoUsuario.Error(e.message ?: "error desconocido")
             }
         }
     }

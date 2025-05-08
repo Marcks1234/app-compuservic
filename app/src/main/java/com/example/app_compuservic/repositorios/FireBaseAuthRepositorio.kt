@@ -1,6 +1,7 @@
 package com.example.app_compuservic.repositorios
 
 import com.example.app_compuservic.modelos.EstadoUsuario
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -16,19 +17,21 @@ class FireBaseAuthRepositorio {
                 auth.signInWithEmailAndPassword(email, password).await()
                 EstadoUsuario.Exito
             } catch (e: Exception) {
-                EstadoUsuario.Error(e.message.toString())
+                EstadoUsuario.Error(e.message ?: "Error desconocido")
             }
         }
     }
 
-
-    suspend fun registerUsuario(email: String, password: String): String? {
+    suspend fun registerUsuario(email: String, password: String): AuthResult {
         return withContext(Dispatchers.IO) {
-            try {
-                auth.createUserWithEmailAndPassword(email, password).await().user?.uid
-            } catch (e: Exception) {
-                null
-            }
+            auth.createUserWithEmailAndPassword(email, password).await()
         }
+    }
+
+    fun cerrarCuenta(){
+        auth.signOut()
+    }
+    fun existeCuenta() : Boolean{
+        return auth.currentUser != null
     }
 }

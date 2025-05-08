@@ -1,8 +1,8 @@
-package com.example.app_compuservic.vistasUi
+package com.example.app_compuservic.ui.vistas.registro
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
@@ -21,14 +21,36 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.app_compuservic.modelos.EstadoUsuario
+import com.example.app_compuservic.modelos.Usuario
 
 @Composable
-fun Registro_Cliente() {
+fun Registro_Cliente(
+    viewModel: RegistroClienteViewModel = viewModel(),
+    toLogin: () -> Unit,
+    toPrincipal: () -> Unit
+) {
+    val estadoUsuario by viewModel.estadoUsario.collectAsState()
+    val mostrarError by viewModel.mostrarError.collectAsState()
+    val nombre by viewModel.nombre.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val confirmarPassword by viewModel.confirmarPassword.collectAsState()
+
+    LaunchedEffect(estadoUsuario) {
+        if (estadoUsuario == EstadoUsuario.Exito) {
+            toPrincipal()
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         // Onda superior derecha
         Canvas(
@@ -80,15 +102,57 @@ fun Registro_Cliente() {
                     .padding(horizontal = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CampoInput(icon = Icons.Default.Person, label = "Full Name", placeholder = "Jhony Felix")
-                CampoInput(icon = Icons.Default.Email, label = "Email", placeholder = "EMAIL")
-                CampoInput(icon = Icons.Default.Lock, label = "Password", placeholder = "PASSWORD", esPassword = true)
-                CampoInput(icon = Icons.Default.Lock, label = "Confirm Password", placeholder = "CONFIRM PASSWORD", esPassword = true)
+                CampoInput(
+                    value = nombre,
+                    OnValueChange = { viewModel.cambiarNombre(it) },
+                    icon = Icons.Default.Person,
+                    label = "Full Name",
+                    placeholder = "full name"
+                )
+                CampoInput(
+                    value = email,
+                    OnValueChange = { viewModel.cambiarEmail(it) },
+                    icon = Icons.Default.Email, label = "Email", placeholder = "email",
+                )
+                CampoInput(
+                    value = password,
+                    OnValueChange = {
+                        viewModel.cambiarPassword(it)
+                        viewModel.cambiarMostrarError(false)
+                    },
+                    icon = Icons.Default.Lock,
+                    label = "Password",
+                    placeholder = "Password",
+                    esPassword = true
+                )
+                CampoInput(
+                    value = confirmarPassword,
+                    OnValueChange = {
+                        viewModel.cambiarConfirmarPassword(it)
+                        viewModel.cambiarMostrarError(false)
+                    },
+                    icon = Icons.Default.Lock,
+                    label = "Confirm Password",
+                    placeholder = "Confirm Password",
+                    esPassword = true
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
-
+                if (mostrarError) {
+                    Text("Las contraseñas no coinciden", color = Color.Red)
+                }
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = {
+                        if (viewModel.verificarPassword()) {
+                            viewModel.crearUsuario(
+                                email,
+                                password,
+                                Usuario(nombre = nombre, email = email)
+                            )
+                        }else{
+                            viewModel.cambiarMostrarError(true)
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0033CC)),
                     shape = RoundedCornerShape(50),
                     modifier = Modifier
@@ -107,10 +171,16 @@ fun Registro_Cliente() {
                     )
                     Text(
                         text = "Sign in",
-                        modifier = Modifier.clickable { /* Navegar al login */ },
+                        modifier = Modifier.clickable { toLogin() },
                         color = Color.Blue,
                         fontWeight = FontWeight.Bold
                     )
+                }
+                when (estadoUsuario) {
+                    is EstadoUsuario.Error -> Text(estadoUsuario.toString())
+                    EstadoUsuario.Exito -> Text("INGRESASTE")
+                    EstadoUsuario.cargando -> CircularProgressIndicator()
+                    EstadoUsuario.vacio -> {}
                 }
             }
         }
@@ -119,6 +189,8 @@ fun Registro_Cliente() {
 
 @Composable
 fun CampoInput(
+    value: String,
+    OnValueChange: (String) -> Unit,
     icon: ImageVector,
     label: String,
     placeholder: String,
@@ -127,8 +199,8 @@ fun CampoInput(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = label, fontSize = 12.sp, color = Color.Gray)
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = value,
+            onValueChange = OnValueChange,
             placeholder = { Text(placeholder) },
             leadingIcon = { Icon(icon, contentDescription = null) },
             visualTransformation = if (esPassword) PasswordVisualTransformation() else VisualTransformation.None,
