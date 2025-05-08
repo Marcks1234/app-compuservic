@@ -43,7 +43,13 @@ android {
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))  // dependecia para el gestor de versiones  FireBase
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx") // analisis de problemas en usuarios
+    implementation("com.google.firebase:firebase-auth-ktx") // autenticacion
+    implementation("com.google.firebase:firebase-firestore-ktx") // base de datos no relacional
+
+    implementation("androidx.navigation:navigation-compose:2.8.0-alpha08") // dependecia para navegar
+
+
 
 
 
