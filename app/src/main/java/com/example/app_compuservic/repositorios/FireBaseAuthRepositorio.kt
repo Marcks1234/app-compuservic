@@ -1,6 +1,6 @@
 package com.example.app_compuservic.repositorios
 
-import com.example.app_compuservic.modelos.EstadoUsuario
+import com.example.app_compuservic.ui.estados.EstadoUsuario
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase

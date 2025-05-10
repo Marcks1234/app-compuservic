@@ -2,7 +2,7 @@ package com.example.app_compuservic.ui.vistas.registro
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app_compuservic.modelos.EstadoUsuario
+import com.example.app_compuservic.ui.estados.EstadoUsuario
 import com.example.app_compuservic.modelos.Usuario
 import com.example.app_compuservic.repositorios.FireBaseAuthRepositorio
 import com.example.app_compuservic.repositorios.FireBaseAuthStoreRepositorio

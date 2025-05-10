@@ -2,14 +2,14 @@ package com.example.app_compuservic.ui.vistas.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app_compuservic.modelos.EstadoUsuario
+import com.example.app_compuservic.ui.estados.EstadoUsuario
 import com.example.app_compuservic.repositorios.FireBaseAuthRepositorio
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
+
 class LoginViewModel(val repositorio: FireBaseAuthRepositorio = FireBaseAuthRepositorio()) :
     ViewModel() {
-
 
     var estadoUsuario = MutableStateFlow<EstadoUsuario>(EstadoUsuario.vacio)
         private set
@@ -27,5 +27,4 @@ class LoginViewModel(val repositorio: FireBaseAuthRepositorio = FireBaseAuthRepo
             estadoUsuario.value = repositorio.loginUsuario(email, password)
         }
     }
-
 }

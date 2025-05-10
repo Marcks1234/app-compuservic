@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.app_compuservic.modelos.EstadoUsuario
+import com.example.app_compuservic.ui.estados.EstadoUsuario
 
 @Composable
 fun LoginVista(
@@ -52,6 +52,7 @@ fun LoginVista(
             toLogin()
         }
     }
+
     Box(modifier = Modifier.fillMaxSize()) {
         // Onda decorativa azul fuerte
         Canvas(
@@ -80,6 +81,7 @@ fun LoginVista(
                 quadraticBezierTo(
                     width * 0.9f, height * 0.45f, width, height * 0.4f
                 )
+
 
                 // Cierre de la figura
                 lineTo(width, 0f)

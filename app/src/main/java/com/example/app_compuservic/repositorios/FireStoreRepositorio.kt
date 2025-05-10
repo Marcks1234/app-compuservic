@@ -1,8 +1,10 @@
 package com.example.app_compuservic.repositorios
 
-import com.example.app_compuservic.modelos.EstadoUsuario
+import com.example.app_compuservic.modelos.Categoria
+import com.example.app_compuservic.ui.estados.EstadoUsuario
 import com.example.app_compuservic.repositorios.datoEnum.FireStoreColeccion.*
 import com.example.app_compuservic.modelos.Usuario
+import com.example.app_compuservic.ui.estados.EstadoCategoria
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -24,8 +26,18 @@ class FireStoreRepositorio {
         }
     }
 
-
-
+    suspend fun obtenerCategorias(): EstadoCategoria {
+        return withContext(Dispatchers.IO)
+        {
+            try {
+                val peticion = store.collection(CATEGORIAS.valor).get().await()
+                val listaCategoria = peticion.mapNotNull { it.toObject(Categoria::class.java) }
+                EstadoCategoria.Exito(listaCategoria)
+            } catch (e: Exception) {
+                EstadoCategoria.Error(e.message ?: "error desconocido")
+            }
+        }
+    }
 
 
 }
