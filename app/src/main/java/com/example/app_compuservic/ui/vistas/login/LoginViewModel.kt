@@ -4,27 +4,36 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_compuservic.ui.estados.EstadoUsuario
 import com.example.app_compuservic.repositorios.FireBaseAuthRepositorio
+import com.example.app_compuservic.repositorios.FireStoreRepositorio
+import com.example.app_compuservic.ui.estados.EstadoLogin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 
-class LoginViewModel(val repositorio: FireBaseAuthRepositorio = FireBaseAuthRepositorio()) :
+class LoginViewModel(
+    private val auth: FireBaseAuthRepositorio = FireBaseAuthRepositorio(),
+    private val db: FireStoreRepositorio = FireStoreRepositorio()
+) :
     ViewModel() {
 
-    var estadoUsuario = MutableStateFlow<EstadoUsuario>(EstadoUsuario.vacio)
-        private set
-    var email = MutableStateFlow<String>("")
-        private set
-    var password = MutableStateFlow<String>("")
+    var estadoLogin = MutableStateFlow<EstadoLogin>(EstadoLogin.Vacio)
         private set
 
-    fun agregarEmail(nuevoEmail: String) { email.value = nuevoEmail}
-    fun agregarPassword(nuevoPassword: String) { password.value = nuevoPassword}
 
     fun loginUsuario(email: String, password: String) {
         viewModelScope.launch {
-            estadoUsuario.value = EstadoUsuario.cargando
-            estadoUsuario.value = repositorio.loginUsuario(email, password)
+            estadoLogin.value = EstadoLogin.Cargando
+            try {
+                val resultado: EstadoUsuario = auth.loginUsuario(email, password)
+                if (resultado == EstadoUsuario.Exito) {
+                    val uid = auth.uidCuentaActual()
+                    val tipoUsuario = db.obtenerTipoUsuario(uid)
+                    estadoLogin.value = EstadoLogin.Exito(tipoUsuario)
+                }
+            } catch (e: Exception) {
+                estadoLogin.value = EstadoLogin.Error(e.message ?: "Error desconocido")
+
+            }
         }
     }
 }

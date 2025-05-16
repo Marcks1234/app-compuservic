@@ -1,5 +1,6 @@
 package com.example.app_compuservic.ui.vistas.componentes
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.app_compuservic.modelos.Categoria
 
 @Composable
-fun GirdTwoColumns(listaCategoria: List<Categoria>) {
+fun ColumnaCategoria(listaCategoria: List<Categoria>, toProduct: (String) -> Unit) {
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -42,23 +43,24 @@ fun GirdTwoColumns(listaCategoria: List<Categoria>) {
         modifier = Modifier.height(800.dp)
     ) {
 
-
         items(listaCategoria) { categoria ->
-
             val context = LocalContext.current
 
             @Suppress("DiscouragedApi")
             val resId = remember(categoria.imagenRes) {
-                context.resources.getIdentifier(categoria.imagenRes, "drawable", context.packageName)
+                context.resources.getIdentifier(
+                    categoria.imagenRes,
+                    "drawable",
+                    context.packageName
+                )
             }
-
             Card(
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(0.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 modifier = Modifier
                     .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
-                    .clickable { /* abrir productos */ }
+                    .clickable {  /* */ }
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -75,7 +77,12 @@ fun GirdTwoColumns(listaCategoria: List<Categoria>) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(categoria.nombre.toString(), fontWeight = FontWeight.Bold)
                     Button(
-                        onClick = { /* Ver productos */ },
+                        onClick = {
+                            if (!categoria.id.isNullOrEmpty()) {
+                                Log.i("identificar Categoria de ColumnaCategoria", categoria.id)
+                                toProduct(categoria.id)
+                            }
+                        },
                         modifier = Modifier.padding(top = 6.dp)
                     ) {
                         Text("Ver Productos", fontSize = 12.sp)

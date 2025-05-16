@@ -4,6 +4,9 @@ sealed class Rutas(val route: String) {
 
     object Login : Rutas("login")
     object Registro : Rutas("registro")
-    object Principal : Rutas("home")
+    object PrincipalUsuario : Rutas("principalUsuario")
+    object Categorias : Rutas("categorias")
+    object PrincipalAdministrador : Rutas("principalAdministrador")
+
 
 }

@@ -1,6 +1,5 @@
 package com.example.app_compuservic.ui.vistas.login
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,88 +11,49 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.app_compuservic.repositorios.datoFireBase.TipoUsuario
+import com.example.app_compuservic.ui.estados.EstadoLogin
 import com.example.app_compuservic.ui.estados.EstadoUsuario
+import com.example.app_compuservic.ui.vistas.componentes.CampoEntrada
+import com.example.app_compuservic.ui.vistas.componentes.FondoDecorativo
 
 @Composable
 fun LoginVista(
     viewModel: LoginViewModel = viewModel(),
     toRegister: () -> Unit,
-    toLogin: () -> Unit
+    toHomeAdmin: () -> Unit,
+    toHomeUser: () -> Unit,
 ) {
-    val estadoUsuario by viewModel.estadoUsuario.collectAsState()
-    val email by viewModel.email.collectAsState()
-    val password by viewModel.password.collectAsState()
+    val estadoLogin by viewModel.estadoLogin.collectAsState()
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
 
-    LaunchedEffect(estadoUsuario) {
-        if (estadoUsuario == EstadoUsuario.Exito) {
-            toLogin()
+    /*LaunchedEffect(estadoLogin) {
+        if (estadoLogin == EstadoUsuario.Exito) {
+            toHomeAdmin()
         }
-    }
+    }*/
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Onda decorativa azul fuerte
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp) // Aumentamos la altura de la onda
-                .align(Alignment.TopEnd)
-        ) {
-            val width = size.width
-            val height = size.height
 
-            val path = Path().apply {
-                moveTo(width * 0.4f, 0f)
-
-                // Primera ondita marcada
-                quadraticBezierTo(
-                    width * 0.55f, height * 0.3f, width * 0.65f, height * 0.2f
-                )
-
-                // Segunda ondita
-                quadraticBezierTo(
-                    width * 0.75f, height * 0.1f, width * 0.8f, height * 0.25f
-                )
-
-                // Última onda más caída
-                quadraticBezierTo(
-                    width * 0.9f, height * 0.45f, width, height * 0.4f
-                )
-
-
-                // Cierre de la figura
-                lineTo(width, 0f)
-                close()
-            }
-
-            drawPath(
-                path = path, brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF0033CC), Color(0xFF0066FF))
-                )
-            )
-        }
+        FondoDecorativo(modifier = Modifier.align(Alignment.TopEnd))
 
         // Contenido principal alineado a la izquierda
         Column(
@@ -112,36 +72,20 @@ fun LoginVista(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Text(
-                text = "Please sign in to continue", fontSize = 14.sp, color = Color.Gray
-            )
+            Text(text = "Please sign in to continue", fontSize = 14.sp, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Email
-            OutlinedTextField(
-                value = email,
-                onValueChange = { viewModel.agregarEmail(it) },
-                label = { Text("Email") },
-                placeholder = { Text("email") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-            )
+            CampoEntrada(label = "Email", icon = Icons.Default.Email, value = email) { email = it }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password
-            OutlinedTextField(
-                value = password,
-                onValueChange = { viewModel.agregarPassword(it) },
-                label = { Text("Password") },
-                placeholder = { Text("password") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
-            )
+            CampoEntrada(
+                isPassword = true,
+                label = "Password",
+                icon = Icons.Default.Lock,
+                value = password
+            ) { password = it }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -153,9 +97,7 @@ fun LoginVista(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-            ) {
-                Text("LOGIN", color = Color.White)
-            }
+            ) { Text("LOGIN", color = Color.White) }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -170,11 +112,23 @@ fun LoginVista(
                     Text("sing up", color = Color(0xFF0033FF), fontWeight = FontWeight.Bold)
                 }
             }
-            when (estadoUsuario) {
-                is EstadoUsuario.Error -> Text(estadoUsuario.toString())
-                EstadoUsuario.Exito -> Text("INGRESASTE")
-                EstadoUsuario.cargando -> CircularProgressIndicator()
-                EstadoUsuario.vacio -> {}
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (estadoLogin) {
+                    EstadoLogin.Cargando -> CircularProgressIndicator()
+                    is EstadoLogin.Error -> Text((estadoLogin as EstadoLogin.Error).mensaje)
+                    is EstadoLogin.Exito -> {
+                        val tipo = (estadoLogin as EstadoLogin.Exito).tipoUsuario
+                        when (tipo) {
+                            is TipoUsuario.administrador -> toHomeAdmin()
+                            is TipoUsuario.usuario ->toHomeUser()
+                            TipoUsuario.nuevo_usuario -> {}
+                        }
+                    }
+                    EstadoLogin.Vacio -> {}
+                }
             }
         }
     }

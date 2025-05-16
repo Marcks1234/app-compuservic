@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app_compuservic.ui.estados.EstadoUsuario
 import com.example.app_compuservic.modelos.Usuario
-import com.example.app_compuservic.repositorios.FireBaseAuthRepositorio
 import com.example.app_compuservic.repositorios.FireBaseAuthStoreRepositorio
-import com.example.app_compuservic.repositorios.FireStoreRepositorio
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 

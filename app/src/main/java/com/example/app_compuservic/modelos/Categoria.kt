@@ -1,7 +1,8 @@
 package com.example.app_compuservic.modelos
 
 data class Categoria(
-    val nombre: String? = null,
-    val descripcion: String? = null,
-    val imagenRes: String? = null
+    val id: String = "sin identificar",
+    val nombre: String = "sin nombre",
+    val descripcion: String = "sin descripcion",
+    val imagenRes: String = "Sin imagen"
 )

@@ -11,27 +11,29 @@ import kotlinx.coroutines.withContext
 class FireBaseAuthRepositorio {
     private val auth = Firebase.auth
 
-    suspend fun loginUsuario(email: String, password: String): EstadoUsuario {
-        return withContext(Dispatchers.IO) {
-            try {
-                auth.signInWithEmailAndPassword(email, password).await()
-                EstadoUsuario.Exito
-            } catch (e: Exception) {
-                EstadoUsuario.Error(e.message ?: "Error desconocido")
-            }
+    suspend fun loginUsuario(email: String, password: String): EstadoUsuario = withContext(
+        Dispatchers.IO
+    ) {
+        try {
+            auth.signInWithEmailAndPassword(email, password).await()
+            EstadoUsuario.Exito
+        } catch (e: Exception) {
+            EstadoUsuario.Error(e.message ?: "Error desconocido")
         }
     }
 
     suspend fun registerUsuario(email: String, password: String): AuthResult {
-        return withContext(Dispatchers.IO) {
-            auth.createUserWithEmailAndPassword(email, password).await()
-        }
+        return auth.createUserWithEmailAndPassword(email, password).await()
     }
 
-    fun cerrarCuenta(){
+    fun cerrarCuenta() {
         auth.signOut()
     }
-    fun existeCuenta() : Boolean{
+    fun uidCuentaActual(): String{
+        return auth.currentUser?.uid ?: ""
+    }
+
+    fun existeCuenta(): Boolean {
         return auth.currentUser != null
     }
 }
