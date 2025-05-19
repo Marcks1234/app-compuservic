@@ -10,9 +10,11 @@ import com.example.app_compuservic.ui.estados.Estados
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -27,6 +29,20 @@ class FireStoreRepositorio {
         } catch (e: Exception) {
             EstadoUsuario.Error(e.message ?: "Error desconocido")
         }
+    }
+    suspend fun obtenerTipoUsuario(uid: String): TipoUsuario {
+        val esAdministrador =
+            db.collection("usuarios").document(uid).get().await().getBoolean("administrador")
+        return when (esAdministrador) {
+            true -> TipoUsuario.administrador
+            false -> TipoUsuario.usuario
+            null -> TipoUsuario.nuevo_usuario
+        }
+    }
+
+    suspend fun obtenerDatosUsuarioActual(uidActual: String): String = withContext(Dispatchers.IO) {
+        val consulta = db.collection("usuarios").document(uidActual).get().await()
+        consulta.toObject(Usuario::class.java)?.nombre ?: "usuario sin nombre"
     }
 
 
@@ -66,22 +82,6 @@ class FireStoreRepositorio {
     }
 
 
-    suspend fun obtenerTipoUsuario(uid: String): TipoUsuario {
-        val esAdministrador =
-            db.collection("usuarios").document(uid).get().await().getBoolean("administrador")
-        return when (esAdministrador) {
-            true -> TipoUsuario.administrador
-            false -> TipoUsuario.usuario
-            null -> TipoUsuario.nuevo_usuario
-        }
-    }
-
-
-    suspend fun obtenerDatosUsuarioActual(uidActual: String): String = withContext(Dispatchers.IO) {
-        val consulta = db.collection("usuarios").document(uidActual).get().await()
-        consulta.toObject(Usuario::class.java)?.nombre ?: "usuario sin nombre"
-    }
-
 
     suspend fun obtenerIdsFavoritos(uid: String): Set<String> = withContext(Dispatchers.IO) {
         val snapshot = db.collection("usuarios")
@@ -101,4 +101,40 @@ class FireStoreRepositorio {
                     .await()
             }
         }
+
+
+    fun escucharFavoritos(uid: String): Flow<List<Producto>> = callbackFlow {
+        val coleccion = db.collection("usuarios").document(uid).collection("favoritos")
+
+        val listener = coleccion.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+
+            val ids = snapshot?.documents?.map { it.id } ?: emptyList()
+
+            if (ids.isEmpty()) {
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+
+            val tareas = ids.map { id ->
+                db.collection("productos").document(id).get()
+            }
+
+            val productos = mutableListOf<Producto>()
+            GlobalScope.launch {
+                val resultados = tareas.map { it.await() }
+                resultados.forEach { doc ->
+                    doc.toObject(Producto::class.java)?.let {
+                        productos.add(it.copy(id = doc.id))
+                    }
+                }
+                trySend(productos)
+            }
+        }
+        awaitClose { listener.remove() }
+    }
+
 }

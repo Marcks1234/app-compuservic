@@ -10,6 +10,7 @@ class FireBaseAuthStoreRepositorio(
     private val auth: FireBaseAuthRepositorio = FireBaseAuthRepositorio(),
     private val db: FireStoreRepositorio = FireStoreRepositorio()
 ) {
+    private var idActual = auth.uidCuentaActual()
 
 
     fun cerrarCuenta() {
@@ -34,6 +35,7 @@ class FireBaseAuthStoreRepositorio(
             EstadoUsuario.Error(e.message ?: "error desconocido")
         }
     }
+
 
 
 }

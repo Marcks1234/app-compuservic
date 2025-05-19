@@ -45,11 +45,6 @@ fun LoginVista(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    /*LaunchedEffect(estadoLogin) {
-        if (estadoLogin == EstadoUsuario.Exito) {
-            toHomeAdmin()
-        }
-    }*/
 
     Box(modifier = Modifier.fillMaxSize()) {
 

@@ -16,27 +16,26 @@ import com.example.app_compuservic.ui.vistas.usuario.tienda.TiendaVistaUsuario
 fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = Tienda.route) {
+
         composable(route = Tienda.route) {
             TiendaVistaUsuario(toProductos = { categoriaId ->
-                navController.navigate(
-                    Productos.crearRutaConId(
-                        categoriaId
-                    )
-                )
+                navController.navigate(Productos.crearRutaConId(categoriaId))
             })
         }
+
         composable(route = Favoritos.route) {
             FavoritosVistaUsuario()
         }
+
         composable(
             route = Productos.route, arguments = listOf(navArgument("categoriaId") {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
             val categoriaId = backStackEntry.arguments!!.getString("categoriaId")
-            if(categoriaId !=null){
-            Log.i("busqueda categoria", categoriaId)
-            ProductosVistaUsuario(categoriaId)
+            if (categoriaId != null) {
+                Log.i("busqueda categoria", categoriaId)
+                ProductosVistaUsuario(categoriaId)
             }
         }
     }

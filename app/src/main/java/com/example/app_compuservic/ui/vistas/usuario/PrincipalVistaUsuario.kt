@@ -30,6 +30,9 @@ import com.example.app_compuservic.R
 import com.example.app_compuservic.navegador.UsuarioNavegador
 import com.example.app_compuservic.navegador.gestionNavegacion.UsuarioRutas
 import com.example.app_compuservic.navegador.gestionNavegacion.UsuarioRutas.*
+import com.example.app_compuservic.repositorios.datoFireBase.TipoUsuario
+import com.example.app_compuservic.ui.vistas.administrador.PrincipalViewModel
+import com.example.app_compuservic.ui.vistas.componentes.NavegadorLateral
 
 val listaRutasCategoria = listOf<UsuarioRutas>(
     Tienda,
@@ -124,35 +127,56 @@ fun BottomNavigationBar(navController: NavHostController, rutaActual: String) {
 @Composable
 fun PrincipalVistaUsuario(
     raizNavController: NavHostController,
+    toLogin: () -> Unit,
+    viewModel: PrincipalViewModel = PrincipalViewModel()
 ) {
 
     val navController = rememberNavController()
     val pilaTraseraActual by navController.currentBackStackEntryAsState()
     val rutaActual = pilaTraseraActual?.destination?.route ?: "tienda"
+    val drawState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
     Log.i("ruta actual", rutaActual)
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Tienda Virtual", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = { /* abrir menú */ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_menu),
-                            contentDescription = "Menú",
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF003FA1))
-            )
-        },
-        bottomBar = { BottomNavigationBar(navController, rutaActual) }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-        ) {
-            UsuarioNavegador(raizNavController = raizNavController, navController = navController)
+    ModalNavigationDrawer(
+        drawerState = drawState,
+        drawerContent = {
+            NavegadorLateral(
+                tipoUsuario = TipoUsuario.usuario,
+                drawerState = drawState,
+                scope = scope,
+                cerrarSesion = {
+                    viewModel.cerrarCuenta()
+                    toLogin()
+                })
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Tienda Virtual", color = Color.White) },
+                    navigationIcon = {
+                        IconButton(onClick = { /* abrir menú */ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_menu),
+                                contentDescription = "Menú",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF003FA1))
+                )
+            },
+            bottomBar = { BottomNavigationBar(navController, rutaActual) }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+            ) {
+                UsuarioNavegador(
+                    raizNavController = raizNavController,
+                    navController = navController
+                )
+            }
         }
     }
 }

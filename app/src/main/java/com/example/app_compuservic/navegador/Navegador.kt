@@ -48,7 +48,12 @@ fun Navegador(navController: NavHostController) {
             )
         }
         composable(route = PrincipalUsuario.route) {
-            PrincipalVistaUsuario(navController)
+            PrincipalVistaUsuario(
+                navController, toLogin = navegarHastaPantalla(
+                    navController,
+                    Login, PrincipalUsuario, true
+                )
+            )
         }
         composable(route = Categorias.route) {
             CategoriasVista()
