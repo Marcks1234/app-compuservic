@@ -1,5 +1,6 @@
 package com.example.app_compuservic.navegador
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -9,8 +10,10 @@ import com.example.app_compuservic.navegador.gestionNavegacion.Rutas.*
 import com.example.app_compuservic.ui.vistas.administrador.PrincipalVistaAdministrador
 import com.example.app_compuservic.ui.vistas.administrador.categoria.CategoriasVista
 import com.example.app_compuservic.ui.vistas.login.LoginVista
+import com.example.app_compuservic.ui.vistas.administrador.producto.AñadirProductoVista
 import com.example.app_compuservic.ui.vistas.usuario.PrincipalVistaUsuario
 import com.example.app_compuservic.ui.vistas.registro.Registro_Cliente
+import com.example.app_compuservic.ui.vistas.usuario.tienda.TiendaVistaUsuario
 
 @Composable
 fun Navegador(navController: NavHostController) {
@@ -55,9 +58,23 @@ fun Navegador(navController: NavHostController) {
                 )
             )
         }
+        composable(route = Rutas.Productos.route) {
+            Text("Vista de productos del administrador (por construir)")
+        }
+
+        composable(route = Rutas.MiTienda.route) {
+            TiendaVistaUsuario(toProductos = { categoriaId ->
+                navController.navigate("productos/$categoriaId")
+            })
+        }
+
         composable(route = Categorias.route) {
             CategoriasVista()
         }
+        composable(route = Rutas.AñadirProducto.route) {
+            AñadirProductoVista()
+        }
+
     }
 
 }

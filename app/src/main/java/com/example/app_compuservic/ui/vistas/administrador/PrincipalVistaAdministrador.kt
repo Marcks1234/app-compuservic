@@ -119,9 +119,9 @@ fun PrincipalVistaAdministrador(
                     )
                     NavigationBarItem(
                         selected = false,
-                        onClick = { },
+                        onClick = {navController.navigate(Rutas.AñadirProducto.route) },
                         icon = {
-                            Icon(Icons.Default.Add, contentDescription = null)
+                            Icon(Icons.Default.Add, contentDescription = "Agregar producto")
                         }
                     )
                     NavigationBarItem(

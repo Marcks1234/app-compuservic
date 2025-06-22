@@ -81,6 +81,10 @@ class FireStoreRepositorio {
         awaitClose { escucha.remove() }
     }
 
+    //agregamos esto:
+    suspend fun agregarProducto(producto: Producto) {
+        db.collection("productos").add(producto).await()
+    }
 
 
     suspend fun obtenerIdsFavoritos(uid: String): Set<String> = withContext(Dispatchers.IO) {

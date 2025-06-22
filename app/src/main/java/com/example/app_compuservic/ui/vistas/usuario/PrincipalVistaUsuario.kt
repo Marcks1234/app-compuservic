@@ -141,13 +141,15 @@ fun PrincipalVistaUsuario(
         drawerState = drawState,
         drawerContent = {
             NavegadorLateral(
-                tipoUsuario = TipoUsuario.usuario,
+                navController = navController, // ✅ aquí está el valor que falta
                 drawerState = drawState,
                 scope = scope,
                 cerrarSesion = {
                     viewModel.cerrarCuenta()
                     toLogin()
-                })
+                },
+                tipoUsuario = TipoUsuario.usuario
+            )
         }
     ) {
         Scaffold(

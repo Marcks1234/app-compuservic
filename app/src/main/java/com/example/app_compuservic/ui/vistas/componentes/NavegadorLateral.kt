@@ -36,9 +36,11 @@ import com.example.app_compuservic.repositorios.datoFireBase.TipoUsuario
 import com.example.app_compuservic.ui.vistas.administrador.DrawerBoton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.navigation.NavHostController
 
 @Composable
 fun NavegadorLateral(
+    navController: NavHostController,
     drawerState: DrawerState,
     scope: CoroutineScope,
     cerrarSesion: () -> Unit,
@@ -65,34 +67,38 @@ fun NavegadorLateral(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         when (tipoUsuario) {
             TipoUsuario.administrador -> {
-
                 DrawerBoton("Inicio", Icons.Default.Home) {
-                    scope.launch { drawerState.close() }
-                }
-                DrawerBoton("Categorías", Icons.Default.Category) {
                     scope.launch {
                         drawerState.close()
-                        categoria()
+                        navController.navigate(Rutas.PrincipalAdministrador.route)
+                    }
+                }
+                DrawerBoton("Categoría", Icons.Default.Category) {
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(Rutas.Categorias.route)
                     }
                 }
                 DrawerBoton("Productos", Icons.Default.GridView) {
-                    scope.launch { drawerState.close() }
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(Rutas.Productos.route)
+                    }
                 }
-                DrawerBoton("Mi tienda", Icons.Default.Store) {
-                    scope.launch { drawerState.close() }
+                DrawerBoton("Mi Tienda", Icons.Default.Store) {
+                    scope.launch {
+                        drawerState.close()
+                        navController.navigate(Rutas.MiTienda.route)
+                    }
                 }
-
                 Divider(modifier = Modifier.padding(vertical = 12.dp))
-
                 DrawerBoton("Cerrar Sesión", Icons.Default.ExitToApp) {
                     cerrarSesion()
                 }
-
             }
-
-            TipoUsuario.nuevo_usuario -> {}
 
             TipoUsuario.usuario -> {
                 DrawerBoton("Tienda", Icons.Default.Store) {
@@ -108,10 +114,9 @@ fun NavegadorLateral(
                     cerrarSesion()
                 }
             }
+
+            TipoUsuario.nuevo_usuario -> { /* No muestra nada */ }
         }
-
-        Divider(modifier = Modifier.padding(vertical = 12.dp))
-
 
         Spacer(modifier = Modifier.weight(1f))
 
