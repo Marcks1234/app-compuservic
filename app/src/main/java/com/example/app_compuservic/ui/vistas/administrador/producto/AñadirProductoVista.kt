@@ -39,6 +39,7 @@ fun AñadirProductoVista() {
     var descripcion by remember { mutableStateOf("") }
     var categorias by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var categoriaSeleccionada by remember { mutableStateOf("") }
+    var expandedCategoria by remember { mutableStateOf(false) }
     var precio by remember { mutableStateOf("") }
     var descuentoActivo by remember { mutableStateOf(false) }
     var ejemploDescuento by remember { mutableStateOf("") }
@@ -134,20 +135,21 @@ fun AñadirProductoVista() {
             )
 
             ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = {},
+                expanded = expandedCategoria,
+                onExpandedChange = { expandedCategoria = !expandedCategoria },
             ) {
                 OutlinedTextField(
                     value = categorias.firstOrNull { it.first == categoriaSeleccionada }?.second ?: "",
                     onValueChange = {},
                     label = { Text("Categoría") },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
                     readOnly = true
                 )
-                DropdownMenu(expanded = false, onDismissRequest = {}) {
+                DropdownMenu(expanded = expandedCategoria, onDismissRequest = { expandedCategoria = false }) {
                     categorias.forEach { (id, nombreCat) ->
                         DropdownMenuItem(text = { Text(nombreCat) }, onClick = {
                             categoriaSeleccionada = id
+                            expandedCategoria = false
                         })
                     }
                 }
