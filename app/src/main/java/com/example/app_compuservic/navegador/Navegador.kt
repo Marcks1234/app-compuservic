@@ -11,6 +11,7 @@ import com.example.app_compuservic.ui.vistas.administrador.PrincipalVistaAdminis
 import com.example.app_compuservic.ui.vistas.administrador.categoria.CategoriasVista
 import com.example.app_compuservic.ui.vistas.login.LoginVista
 import com.example.app_compuservic.ui.vistas.administrador.producto.AñadirProductoVista
+import com.example.app_compuservic.ui.vistas.administrador.producto.ListaProductosVista
 import com.example.app_compuservic.ui.vistas.usuario.PrincipalVistaUsuario
 import com.example.app_compuservic.ui.vistas.registro.Registro_Cliente
 import com.example.app_compuservic.ui.vistas.usuario.tienda.TiendaVistaUsuario
@@ -72,8 +73,12 @@ fun Navegador(navController: NavHostController) {
             CategoriasVista()
         }
         composable(route = Rutas.AñadirProducto.route) {
-            AñadirProductoVista()
+            AñadirProductoVista(navController = navController)
         }
+        composable(route = Rutas.ListaProductos.route) {
+            ListaProductosVista(navController = navController)
+        }
+
 
     }
 

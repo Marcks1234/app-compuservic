@@ -65,6 +65,7 @@ fun PrincipalVistaAdministrador(
                 }
                 DrawerBoton("Productos", Icons.Default.GridView) {
                     scope.launch { drawerState.close() }
+                    navController.navigate("lista_productos")
                 }
                 DrawerBoton("Mi tienda", Icons.Default.Store) {
                     scope.launch { drawerState.close() }
@@ -134,6 +135,7 @@ fun PrincipalVistaAdministrador(
                             }
                         }
                     )
+
                 }
             }
         ) { innerPadding ->

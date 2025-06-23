@@ -21,20 +21,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.example.app_compuservic.modelos.Producto
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AñadirProductoVista() {
+fun AñadirProductoVista(navController: NavController) {
     val context = LocalContext.current
+    val productoEditar = navController.previousBackStackEntry?.savedStateHandle?.get<Producto>("productoEditar")
+
     var nombre by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
     var categorias by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
@@ -60,6 +62,17 @@ fun AñadirProductoVista() {
             val nombre = it.getString("nombre") ?: return@mapNotNull null
             val id = it.id
             id to nombre
+        }
+
+        productoEditar?.let {
+            nombre = it.nombre
+            descripcion = it.descripcion
+            categoriaSeleccionada = it.categoriaId
+            precio = it.precio.toString()
+            porcentaje = it.descuento?.toString() ?: ""
+            descuentoActivo = it.descuento != null
+            precioConDescuento = it.precioFinal?.let { pf -> "S/. %.2f".format(pf) } ?: ""
+            imagenUri = if (it.url.isNotEmpty()) Uri.parse(it.url) else null
         }
     }
 
@@ -90,14 +103,20 @@ fun AñadirProductoVista() {
                                     "fechaRegistro" to com.google.firebase.Timestamp.now()
                                 )
 
-                                val refGlobal = Firebase.firestore.collection("productos").document()
-                                refGlobal.set(producto).await()
+                                val db = Firebase.firestore
 
-                                val refCategoria = Firebase.firestore
+                                val docRef = productoEditar?.id?.let {
+                                    db.collection("productos").document(it)
+                                } ?: db.collection("productos").document()
+
+                                docRef.set(producto).await()
+
+                                val refCategoria = db
                                     .collection("categorias")
                                     .document(categoriaSeleccionada)
                                     .collection("productos")
-                                    .document(refGlobal.id)
+                                    .document(docRef.id)
+
                                 refCategoria.set(producto).await()
 
                                 scope.launch {
@@ -225,7 +244,7 @@ fun AñadirProductoVista() {
                 ) {
                     Text("Calcular", color = Color.White)
                 }
-//nose solo quise agregar xd
+
                 Text("Precio con descuento aplic.", fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = precioConDescuento,
