@@ -225,7 +225,7 @@ fun AñadirProductoVista() {
                 ) {
                     Text("Calcular", color = Color.White)
                 }
-
+//nose solo quise agregar xd
                 Text("Precio con descuento aplic.", fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = precioConDescuento,
