@@ -51,6 +51,9 @@ fun AñadirProductoVista() {
         imagenUri = uri
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         val snapshot = Firebase.firestore.collection("categorias").get().await()
         categorias = snapshot.documents.mapNotNull {
@@ -61,19 +64,21 @@ fun AñadirProductoVista() {
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Agregar un producto", color = Color.White) },
                 actions = {
                     IconButton(onClick = {
                         if (nombre.isBlank() || descripcion.isBlank() || categoriaSeleccionada.isBlank() || precio.isBlank()) {
-                            println("Por favor completa todos los campos obligatorios")
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Por favor completa todos los campos obligatorios")
+                            }
                             return@IconButton
                         }
 
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
-                                val ref = Firebase.firestore.collection("productos").document()
                                 val producto = hashMapOf(
                                     "nombre" to nombre,
                                     "descripcion" to descripcion,
@@ -84,18 +89,24 @@ fun AñadirProductoVista() {
                                     "url" to (imagenUri?.toString() ?: ""),
                                     "fechaRegistro" to com.google.firebase.Timestamp.now()
                                 )
-                                ref.set(producto).await()
+
+                                val refGlobal = Firebase.firestore.collection("productos").document()
+                                refGlobal.set(producto).await()
 
                                 val refCategoria = Firebase.firestore
                                     .collection("categorias")
                                     .document(categoriaSeleccionada)
                                     .collection("productos")
-                                    .document(ref.id)
+                                    .document(refGlobal.id)
                                 refCategoria.set(producto).await()
 
-                                println("Producto publicado correctamente")
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Producto guardado exitosamente")
+                                }
                             } catch (e: Exception) {
-                                println("Error al subir producto: ${e.message}")
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Error al guardar: ${e.message}")
+                                }
                             }
                         }
                     }) {
