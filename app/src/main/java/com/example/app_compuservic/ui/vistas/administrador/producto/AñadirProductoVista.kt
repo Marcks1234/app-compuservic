@@ -66,6 +66,11 @@ fun AñadirProductoVista() {
                 title = { Text("Agregar un producto", color = Color.White) },
                 actions = {
                     IconButton(onClick = {
+                        if (nombre.isBlank() || descripcion.isBlank() || categoriaSeleccionada.isBlank() || precio.isBlank()) {
+                            println("Por favor completa todos los campos obligatorios")
+                            return@IconButton
+                        }
+
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 val ref = Firebase.firestore.collection("productos").document()
@@ -74,13 +79,23 @@ fun AñadirProductoVista() {
                                     "descripcion" to descripcion,
                                     "categoriaId" to categoriaSeleccionada,
                                     "precio" to precio.toDoubleOrNull(),
-                                    "descuento" to porcentaje.toDoubleOrNull(),
-                                    "precioFinal" to precioConDescuento.replace("S/. ", "").toDoubleOrNull(),
-                                    "url" to (imagenUri?.toString() ?: "")
+                                    "descuento" to if (descuentoActivo) porcentaje.toDoubleOrNull() else null,
+                                    "precioFinal" to if (descuentoActivo) precioConDescuento.replace("S/. ", "").toDoubleOrNull() else precio.toDoubleOrNull(),
+                                    "url" to (imagenUri?.toString() ?: ""),
+                                    "fechaRegistro" to com.google.firebase.Timestamp.now()
                                 )
                                 ref.set(producto).await()
+
+                                val refCategoria = Firebase.firestore
+                                    .collection("categorias")
+                                    .document(categoriaSeleccionada)
+                                    .collection("productos")
+                                    .document(ref.id)
+                                refCategoria.set(producto).await()
+
+                                println("Producto publicado correctamente")
                             } catch (e: Exception) {
-                                println("Error: ${e.message}")
+                                println("Error al subir producto: ${e.message}")
                             }
                         }
                     }) {
