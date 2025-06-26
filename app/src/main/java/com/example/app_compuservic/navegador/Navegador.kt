@@ -12,9 +12,11 @@ import com.example.app_compuservic.ui.vistas.administrador.categoria.CategoriasV
 import com.example.app_compuservic.ui.vistas.login.LoginVista
 import com.example.app_compuservic.ui.vistas.administrador.producto.AñadirProductoVista
 import com.example.app_compuservic.ui.vistas.administrador.producto.ListaProductosVista
+import com.example.app_compuservic.ui.vistas.administrador.producto.ProductosVista
 import com.example.app_compuservic.ui.vistas.usuario.PrincipalVistaUsuario
 import com.example.app_compuservic.ui.vistas.registro.Registro_Cliente
 import com.example.app_compuservic.ui.vistas.usuario.tienda.TiendaVistaUsuario
+
 
 @Composable
 fun Navegador(navController: NavHostController) {
@@ -60,7 +62,13 @@ fun Navegador(navController: NavHostController) {
             )
         }
         composable(route = Rutas.Productos.route) {
+            // Aquí muestra el "placeholder" o la vista de productos del administrador por construir
             Text("Vista de productos del administrador (por construir)")
+        }
+
+        composable(route = "productos/{categoriaId}") { backStackEntry ->
+            val categoriaId = backStackEntry.arguments?.getString("categoriaId") ?: ""
+            ProductosVista(categoriaId = categoriaId) // Pasa categoriaId a la vista de productos
         }
 
         composable(route = Rutas.MiTienda.route) {
@@ -83,6 +91,7 @@ fun Navegador(navController: NavHostController) {
     }
 
 }
+
 
 fun navegarHastaPantalla(
     navController: NavHostController,

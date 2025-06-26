@@ -141,7 +141,8 @@ fun PrincipalVistaAdministrador(
                                 )
                                 Text(
                                     "Mis productos",
-                                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                                    color = Color.White,
+                                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
                                 )
                             }
                         }
@@ -150,7 +151,8 @@ fun PrincipalVistaAdministrador(
                         selected = false,
                         onClick = { navController.navigate(Rutas.AñadirProducto.route) },
                         icon = {
-                            Icon(Icons.Default.Add, contentDescription = "Agregar producto")
+
+                            Icon(Icons.Default.Add, tint = Color.White, contentDescription = "Agregar producto")
                         }
                     )
                     NavigationBarItem(
@@ -158,9 +160,10 @@ fun PrincipalVistaAdministrador(
                         onClick = { },
                         icon = {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.ReceiptLong, contentDescription = null)
+                                Icon(Icons.Default.ReceiptLong, contentDescription = null, tint = Color.White)
                                 Text(
                                     "Órdenes",
+                                    color = Color.White,
                                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                                 )
                             }
@@ -201,7 +204,8 @@ fun PrincipalVistaAdministrador(
                                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                                     onClick = {
-
+                                        // Navegar a la pantalla de productos pasando el categoriaId
+                                        navController.navigate("productos/${category.id}")
 
                                     }) {
                                     Text("Ver productos", color = Color.Black)
@@ -212,10 +216,16 @@ fun PrincipalVistaAdministrador(
                                     horizontalArrangement = Arrangement.SpaceAround
                                 ) {
                                     IconButton(onClick = {
+
+
                                     }) {
                                         Icon(Icons.Default.Edit, "editar", tint = Color(0xAE162C46))
                                     }
-                                    IconButton(onClick = {}) {
+                                    IconButton(onClick = {
+
+
+
+                                    }) {
                                         Icon(Icons.Default.Delete, "editar", tint = Color.Red)
                                     }
                                 }

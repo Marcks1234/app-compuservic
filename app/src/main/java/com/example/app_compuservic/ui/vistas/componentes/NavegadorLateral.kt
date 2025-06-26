@@ -33,12 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app_compuservic.navegador.gestionNavegacion.Rutas
 import com.example.app_compuservic.repositorios.datoFireBase.TipoUsuario
-import com.example.app_compuservic.ui.vistas.administrador.DrawerBoton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.navigation.NavHostController
+import com.example.app_compuservic.ui.vistas.administrador.categoria.DrawerBoton
 
 @Composable
+
 fun NavegadorLateral(
     navController: NavHostController,
     drawerState: DrawerState,
