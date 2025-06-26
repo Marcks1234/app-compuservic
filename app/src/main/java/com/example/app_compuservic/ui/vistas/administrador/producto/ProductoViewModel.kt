@@ -15,23 +15,22 @@ class ProductoViewModel : ViewModel() {
     // Lista de productos
     val productos = MutableStateFlow<List<Producto>>(emptyList())
 
-    // Obtener productos por categoriaId
+    // Obtener productos por categoriaNombre
     fun obtenerProductos(categoriaId: String) {
         viewModelScope.launch {
             repositorio.obtenerProductos(categoriaId).collect { estado ->
                 when (estado) {
                     is Estados.Exito -> {
-                        // Si la consulta fue exitosa, actualizamos la lista de productos
-                        productos.value = estado.datos
+                        productos.value = estado.datos  // Si la consulta fue exitosa, actualizamos los productos
                     }
                     else -> {
-                        // Aquí puedes manejar otros casos, como error o vacío
-                        productos.value = emptyList()
+                        productos.value = emptyList()  // Si no hay productos o hay error, dejamos la lista vacía
                     }
                 }
             }
         }
     }
+
 
     private val repositorio = FireStoreRepositorio()
     // Lista de productos

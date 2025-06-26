@@ -204,9 +204,7 @@ fun PrincipalVistaAdministrador(
                                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                                     onClick = {
-                                        // Navegar a la pantalla de productos pasando el categoriaId
-                                        navController.navigate("productos/${category.id}")
-
+                                        navController.navigate("productos/${category.id}")  // Usamos el id de la categoría
                                     }) {
                                     Text("Ver productos", color = Color.Black)
                                 }

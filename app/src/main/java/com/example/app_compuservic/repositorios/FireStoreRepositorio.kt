@@ -62,24 +62,26 @@ class FireStoreRepositorio {
 
 
     fun obtenerProductos(categoriaId: String): Flow<Estados<List<Producto>>> = callbackFlow {
-        val escucha = db.collection("productos").whereEqualTo("categoriaId", categoriaId)
+        val escucha = db.collection("productos")
+            .whereEqualTo("categoriaId", categoriaId)  // Filtramos por categoriaId en lugar de categoriaNombre
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    trySend(Estados.Error(error.message ?: "error desconocido"))
+                    trySend(Estados.Error(error.message ?: "Error desconocido"))
                     return@addSnapshotListener
                 }
                 if (snapshot != null && !snapshot.isEmpty) {
-                    val lista = snapshot.mapNotNull {
-                        val producto = it.toObject(Producto::class.java)
-                        producto.copy(id = it.id)
+                    val lista = snapshot.documents.mapNotNull { document ->
+                        val producto = document.toObject(Producto::class.java)
+                        producto?.copy(id = document.id)  // Añadimos el ID al producto
                     }
-                    trySend(Estados.Exito(lista))
+                    trySend(Estados.Exito(lista))  // Si encontramos productos, los enviamos en el estado Exito
                 } else {
-                    trySend(Estados.Vacio)
+                    trySend(Estados.Vacio)  // Si no encontramos productos, enviamos el estado vacío
                 }
             }
-        awaitClose { escucha.remove() }
+        awaitClose { escucha.remove() }  // Cerramos la escucha cuando el flujo se cierre
     }
+
 
     //agregamos esto:
     suspend fun agregarProducto(producto: Producto) {

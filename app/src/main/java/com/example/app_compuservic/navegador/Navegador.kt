@@ -68,9 +68,8 @@ fun Navegador(navController: NavHostController) {
 
         composable(route = "productos/{categoriaId}") { backStackEntry ->
             val categoriaId = backStackEntry.arguments?.getString("categoriaId") ?: ""
-            ProductosVista(categoriaId = categoriaId) // Pasa categoriaId a la vista de productos
+            ProductosVista(categoriaId = categoriaId, navController = navController)
         }
-
         composable(route = Rutas.MiTienda.route) {
             TiendaVistaUsuario(toProductos = { categoriaId ->
                 navController.navigate("productos/$categoriaId")
