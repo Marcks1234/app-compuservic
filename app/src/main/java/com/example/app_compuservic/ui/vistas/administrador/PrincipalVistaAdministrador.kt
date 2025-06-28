@@ -25,7 +25,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.example.app_compuservic.modelos.Categoria
 import com.example.app_compuservic.navegador.gestionNavegacion.Rutas
+import com.example.app_compuservic.ui.vistas.administrador.categoria.DeleteCategoryDialog
+import com.example.app_compuservic.ui.vistas.administrador.categoria.EditCategoryDialog
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +42,44 @@ fun PrincipalVistaAdministrador(
     val listCategory by viewModel.categorias.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+
+    var categoriaAEditar by remember { mutableStateOf<Categoria?>(null) }
+    var categoriaAEliminar by remember { mutableStateOf<Categoria?>(null) }
+
+    categoriaAEditar?.let { categoria ->
+        EditCategoryDialog(
+            categoria = categoria,
+            onDismiss = { categoriaAEditar = null },
+            onSave = { nuevoNombre ->
+                scope.launch {
+                    val db = FirebaseFirestore.getInstance()
+                    db.collection("categorias")
+                        .document(categoria.id)
+                        .update("nombre", nuevoNombre)
+                    viewModel.getListCategory()
+                    categoriaAEditar = null
+                }
+            }
+        )
+    }
+
+    categoriaAEliminar?.let { categoria ->
+        DeleteCategoryDialog(
+            categoria = categoria,
+            onDismiss = { categoriaAEliminar = null },
+            onConfirm = {
+                scope.launch {
+                    val db = FirebaseFirestore.getInstance()
+                    db.collection("categorias")
+                        .document(categoria.id)
+                        .delete()
+                    viewModel.getListCategory()
+                    categoriaAEliminar = null
+                }
+            }
+        )
+    }
 
     LaunchedEffect(Unit) {
         if (listCategory.isEmpty()) viewModel.getListCategory()
@@ -215,13 +257,13 @@ fun PrincipalVistaAdministrador(
                                 ) {
                                     IconButton(onClick = {
 
-
+                                        categoriaAEditar = category
                                     }) {
                                         Icon(Icons.Default.Edit, "editar", tint = Color(0xAE162C46))
                                     }
                                     IconButton(onClick = {
 
-
+                                        categoriaAEliminar = category
 
                                     }) {
                                         Icon(Icons.Default.Delete, "editar", tint = Color.Red)

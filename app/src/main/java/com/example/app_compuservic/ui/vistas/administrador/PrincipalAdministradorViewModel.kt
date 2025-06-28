@@ -29,15 +29,16 @@ class PrincipalViewModel(
         return repositorio.existeCuenta()
     }
 
-    fun getListCategory(){
+    fun getListCategory() {
         viewModelScope.launch {
             repositorioStore.obtenerCategorias().collect {
-                when (it){
+                when (it) {
                     Estados.Cargando -> {}
                     is Estados.Error -> {}
-                    is Estados.Exito-> {
+                    is Estados.Exito -> {
                         categorias.value = it.datos
                     }
+
                     Estados.Vacio -> {}
                 }
             }
@@ -45,3 +46,4 @@ class PrincipalViewModel(
         }
     }
 }
+
