@@ -64,7 +64,7 @@ fun EditCategoryDialog(
 
                 Button(
                     onClick = { onSave(nuevoNombre.value) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF002984)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0033CC)),
                     modifier = Modifier.fillMaxWidth(0.8f)
                 ) {
                     Text("Actualizar", color = Color.White)

@@ -64,7 +64,7 @@ fun CategoriasVista() {
         topBar = {
             TopAppBar(
                 title = { Text("Tienda Virtual", color = Color.White) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF002FA7))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0033CC))
             )
         }
     ) { padding ->
@@ -148,7 +148,7 @@ fun CategoriasVista() {
                             }
                         }
                     }
-                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF002FA7))) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0033CC))) {
                     Text(if (editandoId == null) "Agregar Categoría" else "Actualizar")
                 }
                 if (editandoId != null) {

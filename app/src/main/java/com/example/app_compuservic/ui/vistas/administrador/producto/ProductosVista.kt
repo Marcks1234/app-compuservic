@@ -1,44 +1,48 @@
 package com.example.app_compuservic.ui.vistas.administrador.producto
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.app_compuservic.modelos.Producto
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductosVista(categoriaId: String, viewModel: ProductoViewModel = viewModel(), navController: NavController) {
-
-    // Obtener el estado de la lista de productos
+fun ProductosVista(
+    categoriaId: String,
+    viewModel: ProductoViewModel = viewModel(),
+    navController: NavController
+) {
     val productos = viewModel.productos.collectAsState().value
+    var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
+    var mostrarDialogo by remember { mutableStateOf(false) }
+
+    val db = FirebaseFirestore.getInstance()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(categoriaId) {
         viewModel.obtenerProductos(categoriaId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Barra superior con fondo azul y flecha para regresar
         TopAppBar(
-            title = {
-                Text("Productos - Administrador", color = Color.White)
-            },
+            title = { Text("Productos - Administrador", color = Color.White) },
             navigationIcon = {
                 IconButton(onClick = { navController.navigate("principalAdministrador") }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Regresar", tint = Color.White)
@@ -49,19 +53,46 @@ fun ProductosVista(categoriaId: String, viewModel: ProductoViewModel = viewModel
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostrar productos con LazyColumn
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(productos) { producto ->
-                ProductoItem(producto = producto, navController = navController)
+                ProductoItem(
+                    producto = producto,
+                    navController = navController,
+                    onEliminarClick = {
+                        productoAEliminar = it
+                        mostrarDialogo = true
+                    }
+                )
             }
+        }
+
+        if (mostrarDialogo && productoAEliminar != null) {
+            DeleteProductDialog(
+                producto = productoAEliminar!!,
+                onDismiss = { mostrarDialogo = false },
+                onConfirm = {
+                    scope.launch {
+                        db.collection("productos").document(productoAEliminar!!.id).delete().await()
+                        db.collection("categorias").document(productoAEliminar!!.categoriaId)
+                            .collection("productos").document(productoAEliminar!!.id).delete().await()
+
+                        mostrarDialogo = false
+                        viewModel.obtenerProductos(productoAEliminar!!.categoriaId) // refresca la lista
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
-fun ProductoItem(producto: Producto, navController: NavController) {
+fun ProductoItem(
+    producto: Producto,
+    navController: NavController,
+    onEliminarClick: (Producto) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,11 +106,8 @@ fun ProductoItem(producto: Producto, navController: NavController) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Aquí debes usar AsyncImage para cargar la imagen si la URL está disponible
-            // AsyncImage
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información del producto
             Column(modifier = Modifier.weight(1f)) {
                 Text(producto.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("Marca: ${producto.marca}", fontSize = 14.sp, color = Color.Gray)
@@ -89,17 +117,15 @@ fun ProductoItem(producto: Producto, navController: NavController) {
                 }
             }
 
-            // Botones para editar y eliminar
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 IconButton(onClick = {
-                    // Lógica para editar el producto
-                    navController.navigate("editar_producto/${producto.id}")
+                    navController.currentBackStackEntry?.savedStateHandle?.set("productoEditar", producto)
+                    navController.navigate("añadir_producto")
                 }) {
                     Icon(Icons.Filled.Edit, contentDescription = "Editar producto", tint = Color(0xFF0033CC))
                 }
                 IconButton(onClick = {
-                    // Lógica para eliminar el producto
-                    // Eliminar producto de Firestore
+                    onEliminarClick(producto)
                 }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Eliminar producto", tint = Color.Red)
                 }

@@ -1,6 +1,7 @@
 package com.example.app_compuservic.ui.vistas.administrador.producto
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
@@ -35,19 +36,30 @@ import kotlinx.coroutines.launch
 @Composable
 fun AñadirProductoVista(navController: NavController) {
     val context = LocalContext.current
+
     val productoEditar = navController.previousBackStackEntry?.savedStateHandle?.get<Producto>("productoEditar")
 
-    var nombre by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
+    Log.d("AñadirProductoVista", "Producto recibido: $productoEditar")
+
+    var nombre by remember { mutableStateOf(productoEditar?.nombre ?: "") }
+    var descripcion by remember { mutableStateOf(productoEditar?.descripcion ?: "") }
     var categorias by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
-    var categoriaSeleccionada by remember { mutableStateOf("") }
+    var categoriaSeleccionada by remember { mutableStateOf(productoEditar?.categoriaId ?: "") }
     var expandedCategoria by remember { mutableStateOf(false) }
-    var precio by remember { mutableStateOf("") }
-    var descuentoActivo by remember { mutableStateOf(false) }
+    var precio by remember { mutableStateOf(productoEditar?.precio?.toString() ?: "") }
+    var descuentoActivo by remember { mutableStateOf(productoEditar?.descuento != null) }
     var ejemploDescuento by remember { mutableStateOf("") }
-    var porcentaje by remember { mutableStateOf("") }
-    var precioConDescuento by remember { mutableStateOf("") }
-    var imagenUri by remember { mutableStateOf<Uri?>(null) }
+    var porcentaje by remember { mutableStateOf(productoEditar?.descuento?.toString() ?: "") }
+    var precioConDescuento by remember {
+        mutableStateOf(
+            productoEditar?.precioFinal?.let { "S/. %.2f".format(it) } ?: ""
+        )
+    }
+    var imagenUri by remember {
+        mutableStateOf(
+            productoEditar?.url?.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
+        )
+    }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         imagenUri = uri
@@ -63,24 +75,18 @@ fun AñadirProductoVista(navController: NavController) {
             val id = it.id
             id to nombre
         }
-
-        productoEditar?.let {
-            nombre = it.nombre
-            descripcion = it.descripcion
-            categoriaSeleccionada = it.categoriaId
-            precio = it.precio.toString()
-            porcentaje = it.descuento?.toString() ?: ""
-            descuentoActivo = it.descuento != null
-            precioConDescuento = it.precioFinal?.let { pf -> "S/. %.2f".format(pf) } ?: ""
-            imagenUri = if (it.url.isNotEmpty()) Uri.parse(it.url) else null
-        }
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Agregar un producto", color = Color.White) },
+                title = {
+                    Text(
+                        if (productoEditar != null) "Editar producto" else "Agregar un producto",
+                        color = Color.White
+                    )
+                },
                 actions = {
                     IconButton(onClick = {
                         if (nombre.isBlank() || descripcion.isBlank() || categoriaSeleccionada.isBlank() || precio.isBlank()) {
@@ -132,7 +138,7 @@ fun AñadirProductoVista(navController: NavController) {
                         Icon(Icons.Default.CloudUpload, contentDescription = "Publicar", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF002FA7))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0033CC))
             )
         }
     ) { padding ->
@@ -240,7 +246,7 @@ fun AñadirProductoVista(navController: NavController) {
                         precioConDescuento = "S/. %.2f".format(total)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF002FA7))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0033CC))
                 ) {
                     Text("Calcular", color = Color.White)
                 }

@@ -95,7 +95,7 @@ fun PrincipalVistaAdministrador(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF002984))
+                        .background(Color(0xFF0033CC))
                         .padding(20.dp)
                 ) {
                     Text(
@@ -166,11 +166,11 @@ fun PrincipalVistaAdministrador(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF002984))
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0033CC))
                 )
             },
             bottomBar = {
-                NavigationBar(containerColor = Color(0xFF002984)) {
+                NavigationBar(containerColor = Color(0xFF0033CC)) {
                     NavigationBarItem(
                         selected = false,
                         onClick = { },
@@ -241,7 +241,7 @@ fun PrincipalVistaAdministrador(
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Black
                                 )
-                                Button(border = BorderStroke(1.dp, Color(0xFF002984)),
+                                Button(border = BorderStroke(1.dp, Color(0xFF0033CC)),
                                     shape = RoundedCornerShape(10.dp),
                                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
@@ -259,7 +259,7 @@ fun PrincipalVistaAdministrador(
 
                                         categoriaAEditar = category
                                     }) {
-                                        Icon(Icons.Default.Edit, "editar", tint = Color(0xAE162C46))
+                                        Icon(Icons.Default.Edit, "editar", tint = Color(0xFF0033CC))
                                     }
                                     IconButton(onClick = {
 
