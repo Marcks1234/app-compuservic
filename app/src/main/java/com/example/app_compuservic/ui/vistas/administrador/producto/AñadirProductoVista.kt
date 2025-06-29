@@ -6,12 +6,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,18 +29,16 @@ import coil3.compose.AsyncImage
 import com.example.app_compuservic.modelos.Producto
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AñadirProductoVista(navController: NavController) {
     val context = LocalContext.current
-
     val productoEditar = navController.previousBackStackEntry?.savedStateHandle?.get<Producto>("productoEditar")
-
     Log.d("AñadirProductoVista", "Producto recibido: $productoEditar")
 
     var nombre by remember { mutableStateOf(productoEditar?.nombre ?: "") }
@@ -55,14 +55,14 @@ fun AñadirProductoVista(navController: NavController) {
             productoEditar?.precioFinal?.let { "S/. %.2f".format(it) } ?: ""
         )
     }
-    var imagenUri by remember {
+    var imagenesUri by remember {
         mutableStateOf(
-            productoEditar?.url?.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
+            productoEditar?.url?.takeIf { it.isNotEmpty() }?.let { listOf(Uri.parse(it)) } ?: emptyList()
         )
     }
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        imagenUri = uri
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
+        if (uris != null) imagenesUri = imagenesUri + uris
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -95,7 +95,6 @@ fun AñadirProductoVista(navController: NavController) {
                             }
                             return@IconButton
                         }
-
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 val producto = hashMapOf(
@@ -105,26 +104,20 @@ fun AñadirProductoVista(navController: NavController) {
                                     "precio" to precio.toDoubleOrNull(),
                                     "descuento" to if (descuentoActivo) porcentaje.toDoubleOrNull() else null,
                                     "precioFinal" to if (descuentoActivo) precioConDescuento.replace("S/. ", "").toDoubleOrNull() else precio.toDoubleOrNull(),
-                                    "url" to (imagenUri?.toString() ?: ""),
+                                    "url" to (imagenesUri.firstOrNull()?.toString() ?: ""),
                                     "fechaRegistro" to com.google.firebase.Timestamp.now()
                                 )
-
                                 val db = Firebase.firestore
-
                                 val docRef = productoEditar?.id?.let {
                                     db.collection("productos").document(it)
                                 } ?: db.collection("productos").document()
-
                                 docRef.set(producto).await()
-
                                 val refCategoria = db
                                     .collection("categorias")
                                     .document(categoriaSeleccionada)
                                     .collection("productos")
                                     .document(docRef.id)
-
                                 refCategoria.set(producto).await()
-
                                 scope.launch {
                                     snackbarHostState.showSnackbar("Producto guardado exitosamente")
                                 }
@@ -150,24 +143,37 @@ fun AñadirProductoVista(navController: NavController) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .border(2.dp, Color.Gray, RoundedCornerShape(24.dp))
-                    .clickable { launcher.launch("image/*") },
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (imagenUri != null) {
-                    AsyncImage(
-                        model = imagenUri,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Icon(Icons.Filled.CloudUpload, contentDescription = "Seleccionar imagen")
+                imagenesUri.forEach { uri ->
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                    ) {
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(2.dp, Color.Gray, RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .border(2.dp, Color.Gray, RoundedCornerShape(16.dp))
+                        .clickable { launcher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Filled.CloudUpload, contentDescription = "Agregar imagen")
                 }
             }
 
@@ -229,14 +235,12 @@ fun AñadirProductoVista(navController: NavController) {
                     label = { Text("Ej. 10% OFF") },
                     modifier = Modifier.fillMaxWidth()
                 )
-
                 OutlinedTextField(
                     value = porcentaje,
                     onValueChange = { if (it.matches(Regex("^\\d*\\.?\\d*\$"))) porcentaje = it },
                     label = { Text("Porcentaje (ej: 20, 50)") },
                     modifier = Modifier.fillMaxWidth()
                 )
-
                 Button(
                     onClick = {
                         val precioNum = precio.toDoubleOrNull() ?: 0.0
@@ -250,7 +254,6 @@ fun AñadirProductoVista(navController: NavController) {
                 ) {
                     Text("Calcular", color = Color.White)
                 }
-
                 Text("Precio con descuento aplic.", fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = precioConDescuento,
