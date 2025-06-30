@@ -25,11 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.example.app_compuservic.modelos.Categoria
 
 @Composable
@@ -66,14 +68,18 @@ fun ColumnaCategoria(listaCategoria: List<Categoria>, toProduct: (String) -> Uni
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(12.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = resId),
-                        contentDescription = categoria.nombre,
-                        modifier = Modifier
-                            .height(100.dp)
-                            .fillMaxWidth()
-                            .wrapContentWidth(Alignment.CenterHorizontally)
-                    )
+                    if (categoria.url.isNotBlank()) {
+                        AsyncImage(
+                            model = categoria.url,
+                            contentDescription = categoria.nombre,
+                            modifier = Modifier
+                                .height(100.dp)
+                                .fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Text("Sin imagen", modifier = Modifier.height(100.dp))
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(categoria.nombre.toString(), fontWeight = FontWeight.Bold)
                     Button(

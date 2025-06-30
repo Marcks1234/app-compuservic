@@ -28,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app_compuservic.modelos.Producto
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+
 
 @Composable
 fun ColumnaProducto(
@@ -71,7 +74,21 @@ fun ColumnaProducto(
                                     .fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("IMAGEN DEL PRODUCTO")
+                                //Text("IMAGEN DEL PRODUCTO")
+                                val urlValida = producto.url.trim()
+                                if (urlValida.isNotEmpty()) {
+                                    AsyncImage(
+                                        model = urlValida,
+                                        contentDescription = "Imagen del producto",
+                                        modifier = Modifier
+                                            .height(100.dp)
+                                            .fillMaxWidth(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Text("Sin imagen", modifier = Modifier.height(100.dp))
+                                }
+
                             }
                         }
                         Column(
