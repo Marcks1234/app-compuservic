@@ -10,11 +10,12 @@ sealed class UsuarioRutas(val route: String = "", val label: String = "", val ic
     object Favoritos : UsuarioRutas("favoritos", "Favoritos", R.drawable.ic_favoritos)
     object Carrito : UsuarioRutas("carrito", "Carrito", R.drawable.ic_carrito)
     object Ordenes : UsuarioRutas("ordenes", "Órdenes", R.drawable.ic_ordenes)
-    object Productos : UsuarioRutas("productos/{categoriaId}") {
-        fun crearRutaConId(categoriaId: String): String {
-            return "productos/$categoriaId"
-        }
-
+    object Productos : UsuarioRutas(
+        route = "productos/{categoriaId}",
+        label = "Productos",
+        icon = R.drawable.ic_arrow // si tienes un ícono
+    ) {
+        fun crearRutaConId(id: String) = "productos/$id"
     }
 
 }

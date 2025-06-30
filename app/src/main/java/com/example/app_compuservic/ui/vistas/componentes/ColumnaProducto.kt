@@ -37,9 +37,10 @@ fun ColumnaProducto(
     listaProducto: List<Producto>,
     listaFavorito: Set<String> = emptySet(),
     favoritoBoton: (Producto) -> Unit = {},
-    infoBoton: () -> Unit = {},
+    infoBoton: (Producto) -> Unit = {}, // ← Esto está bien
     colorFavoritoRojo: Boolean = false,
 ) {
+
     LazyColumn(
         Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(
@@ -131,8 +132,8 @@ fun ColumnaProducto(
                                     else Color.Gray
                                 )
                             }
-                            IconButton(onClick = infoBoton) {
-                                Icon(Icons.Default.PlayArrow, contentDescription = "Play")
+                            IconButton(onClick = {infoBoton(producto)}) {
+                                Icon(Icons.Default.PlayArrow, contentDescription = "Detalles")
                             }
                         }
                     }

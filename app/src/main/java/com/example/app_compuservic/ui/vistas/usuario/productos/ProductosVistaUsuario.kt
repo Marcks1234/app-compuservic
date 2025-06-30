@@ -30,10 +30,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.app_compuservic.ui.vistas.componentes.ColumnaProducto
 
 @Composable
-fun ProductosVistaUsuario(categoriaid: String, viewModel: ProductosUsuarioViewModel = viewModel()) {
+fun ProductosVistaUsuario(categoriaid: String,
+                          navController: NavHostController,
+                          viewModel: ProductosUsuarioViewModel = viewModel()
+) {
+
     val listaProducto by viewModel.listaProducto.collectAsState()
     val listaFavorito by viewModel.listaFavorito.collectAsState()
 
@@ -50,7 +55,11 @@ fun ProductosVistaUsuario(categoriaid: String, viewModel: ProductosUsuarioViewMo
         ColumnaProducto(
             listaProducto = listaProducto,
             listaFavorito = listaFavorito,
-            favoritoBoton = { viewModel.cambiarFavorito(it)})
+            favoritoBoton = { viewModel.cambiarFavorito(it)},
+            infoBoton = { producto ->
+                navController.navigate("detalle_producto/${producto.id}")
+            }
+        )
     }
 
 }

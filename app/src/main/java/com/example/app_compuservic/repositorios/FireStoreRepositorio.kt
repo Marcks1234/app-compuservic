@@ -82,6 +82,16 @@ class FireStoreRepositorio {
         awaitClose { escucha.remove() }  // Cerramos la escucha cuando el flujo se cierre
     }
 
+    //otenemos productos por id
+    suspend fun obtenerProductoPorId(id: String): Producto? {
+        return try {
+            val doc = db.collection("productos").document(id).get().await()
+            doc.toObject(Producto::class.java)?.copy(id = doc.id)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 
     //agregamos esto:
     suspend fun agregarProducto(producto: Producto) {

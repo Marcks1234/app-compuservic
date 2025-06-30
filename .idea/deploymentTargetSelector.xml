@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="App_Compuservic.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-23T23:08:04.495455900Z">
+        <DropdownSelection timestamp="2025-06-30T06:00:07.671714900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Patricia Jimena\.android\avd\Medium_Phone_2.avd" />
