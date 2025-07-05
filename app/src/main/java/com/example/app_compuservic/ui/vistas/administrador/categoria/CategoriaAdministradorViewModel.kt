@@ -13,7 +13,6 @@ import kotlinx.coroutines.tasks.await
 class CategoriaViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
 
-
     private val _nombreCategoria = MutableStateFlow("")
     val nombreCategoria: StateFlow<String> = _nombreCategoria
 
@@ -26,7 +25,7 @@ class CategoriaViewModel : ViewModel() {
         obtenerCategoriasDesdeFirestore()
     }
 
-    // 🔹 Esto agrega una categoría a Firestore (agregamos id)
+    //  Esto agrega una categoría a Firestore (agregamos id)
     fun agregarCategoria() {
         if (_nombreCategoria.value.isNotBlank()) {
             viewModelScope.launch {

@@ -9,12 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_compuservic.modelos.ProductoCarrito
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
 fun CarritoVistaUsuario(
     viewModel: CarritoViewModel = viewModel()
 ) {
+
     val carrito by viewModel.carrito.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarCarritoCuandoUsuarioDisponible()
+    }
+
 
     Column(modifier = Modifier
         .fillMaxSize()

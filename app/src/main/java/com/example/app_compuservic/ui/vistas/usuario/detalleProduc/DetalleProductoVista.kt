@@ -125,15 +125,20 @@ fun DetalleProductoVista(
 
                 Button(
                     onClick = {
-                        onAgregarAlCarrito(producto,cantidad)
-                        Toast.makeText(context, "Producto agregado al carrito", Toast.LENGTH_SHORT).show()
-
+                        if (cantidad <= producto.stock) {
+                            onAgregarAlCarrito(producto, cantidad)
+                            Toast.makeText(context, "Producto agregado al carrito", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "No hay suficiente stock", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = producto.stock > 0
                 ) {
                     Text("Agregar al Carrito")
                 }
+
             }
         }
 

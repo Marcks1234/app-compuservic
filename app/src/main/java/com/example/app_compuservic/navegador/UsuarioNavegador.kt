@@ -57,7 +57,11 @@ fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHos
                 DetalleProductoVista(
                     producto = it,
                     navController = navController, // ✅ se pasa aquí
-                    onAgregarAlCarrito = { producto, cantidad -> carritoViewModel.agregarAlCarrito(producto,cantidad) }
+                    onAgregarAlCarrito = { producto, cantidad ->
+                        carritoViewModel.agregarAlCarrito(producto,cantidad)
+                        carritoViewModel.guardarProductoFirestore(producto, cantidad)
+
+                    }
                 )
             }
         }
