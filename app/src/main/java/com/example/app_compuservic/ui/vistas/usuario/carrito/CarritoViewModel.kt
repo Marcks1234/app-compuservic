@@ -24,7 +24,6 @@ class CarritoViewModel : ViewModel() {
 
     fun eliminarProducto(productoId: String) {
         _carrito.value = _carrito.value.filterNot { it.producto.id == productoId }
-
     }
     fun limpiarCarrito() {
         _carrito.value = emptyList()

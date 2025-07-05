@@ -1,5 +1,6 @@
 package com.example.app_compuservic.navegador
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -55,10 +56,8 @@ fun Navegador(navController: NavHostController) {
         }
         composable(route = PrincipalUsuario.route) {
             PrincipalVistaUsuario(
-                navController, toLogin = navegarHastaPantalla(
-                    navController,
-                    Login, PrincipalUsuario, true
-                )
+                navController,
+                toLogin = navegarHastaPantalla(navController, Login, PrincipalUsuario, true)
             )
         }
         composable(route = Rutas.Productos.route) {

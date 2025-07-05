@@ -193,7 +193,6 @@ fun PrincipalVistaAdministrador(
                         selected = false,
                         onClick = { navController.navigate(Rutas.AñadirProducto.route) },
                         icon = {
-
                             Icon(Icons.Default.Add, tint = Color.White, contentDescription = "Agregar producto")
                         }
                     )
@@ -223,7 +222,6 @@ fun PrincipalVistaAdministrador(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                 ) {
-
                     items(listCategory) { category ->
 
                         Card(Modifier.padding(5.dp)) {
@@ -256,7 +254,6 @@ fun PrincipalVistaAdministrador(
                                     horizontalArrangement = Arrangement.SpaceAround
                                 ) {
                                     IconButton(onClick = {
-
                                         categoriaAEditar = category
                                     }) {
                                         Icon(Icons.Default.Edit, "editar", tint = Color(0xFF0033CC))

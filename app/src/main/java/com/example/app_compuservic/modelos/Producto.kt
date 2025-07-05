@@ -11,5 +11,6 @@ data class Producto(
     val isLike: Boolean = false,
     val descuento: Double? = null,
     val precioFinal: Double? = null,
-    val url: String = ""
+    val url: String = "",
+    val urlList: List<String> = emptyList<String>()
 ) : java.io.Serializable

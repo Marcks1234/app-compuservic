@@ -1,5 +1,6 @@
 package com.example.app_compuservic.ui.vistas.login
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,7 +87,9 @@ fun LoginVista(
 
             // Botón login (sin flecha)
             Button(
-                onClick = { viewModel.loginUsuario(email, password) },
+                onClick = {
+                        viewModel.loginUsuario(email, password)
+                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0033FF)),
                 shape = RoundedCornerShape(50),
                 modifier = Modifier
@@ -118,10 +121,11 @@ fun LoginVista(
                         val tipo = (estadoLogin as EstadoLogin.Exito).tipoUsuario
                         when (tipo) {
                             is TipoUsuario.administrador -> toHomeAdmin()
-                            is TipoUsuario.usuario ->toHomeUser()
+                            is TipoUsuario.usuario -> toHomeUser()
                             TipoUsuario.nuevo_usuario -> {}
                         }
                     }
+
                     EstadoLogin.Vacio -> {}
                 }
             }
