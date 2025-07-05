@@ -173,7 +173,10 @@ fun AñadirProductoVista(navController: NavController) {
                                         val nuevaUrl = imageRef.downloadUrl.await().toString()
                                         imagenesFinalesSecundarias.add(index, nuevaUrl)
                                     } catch (e: Exception) {
-                                        Log.i("nueva imagen", "Error al subir nueva imagen secundaria: ${e.message}")
+                                        Log.i(
+                                            "nueva imagen",
+                                            "Error al subir nueva imagen secundaria: ${e.message}"
+                                        )
                                     }
                                 }
 
@@ -193,7 +196,10 @@ fun AñadirProductoVista(navController: NavController) {
                                         imagenesFinalesSecundarias.add(url)
                                         indexAux++
                                     } catch (e: Exception) {
-                                        Log.i("nueva imagen", "Error al subir nueva imagen secundaria: ${e.message}")
+                                        Log.i(
+                                            "nueva imagen",
+                                            "Error al subir nueva imagen secundaria: ${e.message}"
+                                        )
                                     }
                                 }
 
@@ -210,7 +216,10 @@ fun AñadirProductoVista(navController: NavController) {
                                     ).toDoubleOrNull() else precio.toDoubleOrNull(),
                                     "url" to imagenPrincipalUrl,
                                     "urlList" to imagenesFinalesSecundarias,
-                                    "precioFinal" to if (descuentoActivo) precioConDescuento.replace("S/. ", "").toDoubleOrNull() else precio.toDoubleOrNull(),
+                                    "precioFinal" to if (descuentoActivo) precioConDescuento.replace(
+                                        "S/. ",
+                                        ""
+                                    ).toDoubleOrNull() else precio.toDoubleOrNull(),
                                     "stock" to stock,
                                     "fechaRegistro" to com.google.firebase.Timestamp.now()
                                 )
@@ -251,10 +260,14 @@ fun AñadirProductoVista(navController: NavController) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(Modifier.fillMaxWidth()) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Imagen Principal", fontSize = 16.sp)
+
+
+            Row(
+                Modifier.fillMaxWidth()
+            ) {
+                Column(Modifier.wrapContentHeight(),verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (imagenPrincipal.isNotEmpty()) {
+                    Text("Imagen Principal", fontSize = 16.sp)
                         AsyncImage(
                             model = imagenPrincipal,
                             contentDescription = null,
@@ -268,18 +281,31 @@ fun AñadirProductoVista(navController: NavController) {
                                 .border(2.dp, Color.Gray, RoundedCornerShape(16.dp)),
                             contentScale = ContentScale.Crop
                         )
-                    } else {
-                        Text(
-                            "No hay imagen para este producto",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
+                    } else if(productoEditar == null){
+                        Text("Agregar Imagen Principal", fontSize = 16.sp)
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clickable {
+                                    reemplazarImagenPrincipal = true
+                                    launcherReemplazo.launch("image/*")
+                                }
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(2.dp, Color.Gray, RoundedCornerShape(16.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudUpload,
+                                contentDescription = "Subir imagen",
+                                tint = Color.Gray
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.width(80.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Imagenes Secundarias", fontSize = 16.sp)
                     if (imagenesRemotas.isNotEmpty()) {
+                    Text("Imagenes Secundarias", fontSize = 16.sp)
                         LazyRow {
                             itemsIndexed(imagenesRemotas) { index, url ->
                                 AsyncImage(
@@ -298,16 +324,13 @@ fun AñadirProductoVista(navController: NavController) {
                                 Spacer(Modifier.width(8.dp))
                             }
                         }
-                    } else {
-                        Text(
-                            "No hay imagenes secundarias",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
+                    }else if(productoEditar == null){
+                        Text("")
+                    }else{
+                        Text("No hay imagenes secundarias")
                     }
                 }
             }
-
             Text("Agregar imagen secundaria: ", fontSize = 16.sp)
             Row(
                 modifier = Modifier
