@@ -9,15 +9,15 @@ class CarritoViewModel : ViewModel() {
     private val _carrito = MutableStateFlow<List<ProductoCarrito>>(emptyList())
     val carrito: StateFlow<List<ProductoCarrito>> = _carrito
 
-    fun agregarAlCarrito(producto: Producto) {
+    fun agregarAlCarrito(producto: Producto, cantidad: Int=1) {
         val actual = _carrito.value.toMutableList()
         val index = actual.indexOfFirst { it.producto.id == producto.id }
 
         if (index >= 0) {
             val itemExistente = actual[index]
-            actual[index] = itemExistente.copy(cantidad = itemExistente.cantidad + 1)
+            actual[index] = itemExistente.copy(cantidad = itemExistente.cantidad + cantidad)
         } else {
-            actual.add(ProductoCarrito(producto))
+            actual.add(ProductoCarrito(producto,cantidad))
         }
         _carrito.value = actual
     }

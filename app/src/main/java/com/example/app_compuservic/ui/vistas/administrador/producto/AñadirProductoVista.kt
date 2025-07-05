@@ -43,6 +43,7 @@ fun AñadirProductoVista(navController: NavController) {
 
     var nombre by remember { mutableStateOf(productoEditar?.nombre ?: "") }
     var descripcion by remember { mutableStateOf(productoEditar?.descripcion ?: "") }
+    var marca by remember { mutableStateOf(productoEditar?.marca ?: "") }
     var categorias by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var categoriaSeleccionada by remember { mutableStateOf(productoEditar?.categoriaId ?: "") }
     var expandedCategoria by remember { mutableStateOf(false) }
@@ -60,6 +61,7 @@ fun AñadirProductoVista(navController: NavController) {
             productoEditar?.url?.takeIf { it.isNotEmpty() }?.let { listOf(Uri.parse(it)) } ?: emptyList()
         )
     }
+    var stock by remember { mutableStateOf(productoEditar?.stock ?: 0) }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
         if (uris != null) imagenesUri = imagenesUri + uris
@@ -100,11 +102,13 @@ fun AñadirProductoVista(navController: NavController) {
                                 val producto = hashMapOf(
                                     "nombre" to nombre,
                                     "descripcion" to descripcion,
+                                    "marca" to marca,
                                     "categoriaId" to categoriaSeleccionada,
                                     "precio" to precio.toDoubleOrNull(),
                                     "descuento" to if (descuentoActivo) porcentaje.toDoubleOrNull() else null,
                                     "precioFinal" to if (descuentoActivo) precioConDescuento.replace("S/. ", "").toDoubleOrNull() else precio.toDoubleOrNull(),
                                     "url" to (imagenesUri.firstOrNull()?.toString() ?: ""),
+                                    "stock" to stock,
                                     "fechaRegistro" to com.google.firebase.Timestamp.now()
                                 )
                                 val db = Firebase.firestore
@@ -190,7 +194,12 @@ fun AñadirProductoVista(navController: NavController) {
                 label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth()
             )
-
+            OutlinedTextField(
+                value = marca,
+                onValueChange = { marca = it },
+                label = { Text("Marca") },
+                modifier = Modifier.fillMaxWidth()
+            )
             ExposedDropdownMenuBox(
                 expanded = expandedCategoria,
                 onExpandedChange = { expandedCategoria = !expandedCategoria },
@@ -262,6 +271,21 @@ fun AñadirProductoVista(navController: NavController) {
                     placeholder = { Text("S/.") },
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+            // Stock
+            Text("Stock", fontWeight = FontWeight.Medium)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = { if (stock > 0) stock-- }) {
+                    Text("−")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("$stock")
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(onClick = { stock++ }) {
+                    Text("+")
+                }
             }
         }
     }

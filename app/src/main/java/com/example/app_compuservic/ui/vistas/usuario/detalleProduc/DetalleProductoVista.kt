@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -26,11 +27,13 @@ import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoViewModel
 fun DetalleProductoVista(
     producto: Producto,
     navController: NavHostController,
-    onAgregarAlCarrito: (Producto) -> Unit
+    onAgregarAlCarrito: (Producto,Int) -> Unit
 
 ) {
     var expandirImagen by remember { mutableStateOf(false) }
     var mostrarMas by remember { mutableStateOf(false) }
+    var cantidad by remember { mutableStateOf(1) }
+
 
     val carritoViewModel: CarritoViewModel = viewModel()
     val context = LocalContext.current
@@ -87,10 +90,42 @@ fun DetalleProductoVista(
                 )
 
                 Spacer(Modifier.height(8.dp))
+                // Sección de cantidad
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Cantidad:", fontWeight = FontWeight.Medium)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { if (cantidad > 1) cantidad-- },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Text("-")
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(cantidad.toString())
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = { cantidad++ },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Text("+")
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
 
                 Button(
                     onClick = {
-                        onAgregarAlCarrito(producto)
+                        onAgregarAlCarrito(producto,cantidad)
                         Toast.makeText(context, "Producto agregado al carrito", Toast.LENGTH_SHORT).show()
 
                     },
