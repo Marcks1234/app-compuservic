@@ -79,6 +79,11 @@ class CarritoViewModel : ViewModel() {
 
     fun eliminarProducto(productoId: String) {
         _carrito.value = _carrito.value.filterNot { it.producto.id == productoId }
+        CarritoRepositorio.eliminarProductoDeFirestore(
+            productoId = productoId,
+            onSuccess = { Log.d("CarritoViewModel", "Producto eliminado de Firestore") },
+            onError = { e -> Log.e("CarritoViewModel", "Error al eliminar: ${e.message}") }
+        )
     }
 
     fun limpiarCarrito() {

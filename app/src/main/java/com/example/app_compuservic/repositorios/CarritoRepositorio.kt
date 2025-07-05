@@ -40,4 +40,21 @@ object CarritoRepositorio {
             }
             .addOnFailureListener { onError(it) }
     }
+    fun eliminarProductoDeFirestore(
+        productoId: String,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val uid = Firebase.auth.currentUser?.uid ?: return onError(Exception("Usuario no autenticado"))
+
+        Firebase.firestore
+            .collection("usuarios")
+            .document(uid)
+            .collection("carrito")
+            .document(productoId)
+            .delete()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { onError(it) }
+    }
+
 }
