@@ -22,6 +22,9 @@ import com.example.app_compuservic.ui.vistas.usuario.detalleProduc.DetalleProduc
 @Composable
 fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHostController) {
 
+    //agregado
+    val carritoViewModel: CarritoViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = Tienda.route) {
 
         composable(route = Tienda.route) {
@@ -31,10 +34,10 @@ fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHos
         }
 
         composable(route = Favoritos.route) {
-            FavoritosVistaUsuario()
+            FavoritosVistaUsuario(navController = navController)
         }
         composable(route = Carrito.route) {
-            CarritoVistaUsuario()
+            CarritoVistaUsuario(viewModel = carritoViewModel)
         }
         composable(
             route = "detalle_producto/{productoId}",
@@ -45,6 +48,7 @@ fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHos
             val productoState = viewModel.producto.collectAsState()
             val producto = productoState.value
 
+
             LaunchedEffect(productoId) {
                 viewModel.cargarProductoPorId(productoId)
             }
@@ -53,7 +57,7 @@ fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHos
                 DetalleProductoVista(
                     producto = it,
                     navController = navController, // ✅ se pasa aquí
-
+                    onAgregarAlCarrito = { producto -> carritoViewModel.agregarAlCarrito(producto) }
                 )
             }
         }

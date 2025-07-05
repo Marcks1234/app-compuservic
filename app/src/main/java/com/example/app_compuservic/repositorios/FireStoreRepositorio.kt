@@ -153,4 +153,9 @@ class FireStoreRepositorio {
         awaitClose { listener.remove() }
     }
 
+    suspend fun agregarAlCarrito(userId: String, producto: Producto){
+
+        db.collection("usuarios").document(userId).collection("carrito").add(producto).await()
+    }
+
 }

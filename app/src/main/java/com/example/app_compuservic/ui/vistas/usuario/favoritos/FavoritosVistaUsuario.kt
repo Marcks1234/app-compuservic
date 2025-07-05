@@ -8,11 +8,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_compuservic.ui.vistas.componentes.ColumnaProducto
 
 @Composable
-fun FavoritosVistaUsuario(viewModel: FavoritoViewModel = viewModel()) {
+fun FavoritosVistaUsuario(
+    navController: NavHostController,
+    viewModel: FavoritoViewModel = viewModel()
+) {
     val listaFavoritos by viewModel.listaFavorito.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.obtenerFavoritosTiempoReal()
@@ -27,8 +31,9 @@ fun FavoritosVistaUsuario(viewModel: FavoritoViewModel = viewModel()) {
         ColumnaProducto(
             colorFavoritoRojo = true,
             listaProducto = listaFavoritos,
-            favoritoBoton = { producto ->
-                viewModel.cambiarFavorito(producto)
+            favoritoBoton = { producto -> viewModel.cambiarFavorito(producto) },
+            infoBoton = { producto ->
+                navController.navigate("detalle_producto/${producto.id}")
             }
         )
     }

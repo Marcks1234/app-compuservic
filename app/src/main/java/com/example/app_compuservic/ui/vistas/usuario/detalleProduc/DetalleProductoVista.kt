@@ -25,7 +25,9 @@ import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoViewModel
 @Composable
 fun DetalleProductoVista(
     producto: Producto,
-    navController: NavHostController
+    navController: NavHostController,
+    onAgregarAlCarrito: (Producto) -> Unit
+
 ) {
     var expandirImagen by remember { mutableStateOf(false) }
     var mostrarMas by remember { mutableStateOf(false) }
@@ -88,8 +90,9 @@ fun DetalleProductoVista(
 
                 Button(
                     onClick = {
-                        carritoViewModel.agregarAlCarrito(producto)
+                        onAgregarAlCarrito(producto)
                         Toast.makeText(context, "Producto agregado al carrito", Toast.LENGTH_SHORT).show()
+
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
