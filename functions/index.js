@@ -1,25 +1,47 @@
 const functions = require("firebase-functions");
-const fetch = require("node-fetch");
+const admin = require("firebase-admin");
+admin.initializeApp();
 
-// 🔁 Webhook que escucha pagos confirmados
 exports.mercadoPagoWebhook = functions.https.onRequest(async (req, res) => {
-  if (req.method !== "POST") {
-    return res.status(405).send("Método no permitido");
+  const secret = req.get("x-signature");
+  const expectedSecret = "tu_clave_secreta"; // ← reemplaza por tu clave del panel de Webhooks
+
+  if (secret !== expectedSecret) {
+    return res.status(401).send("Unauthorized");
   }
 
-  const body = req.body;
+  const { type, data, action } = req.body;
 
-  console.log("🔔 Webhook recibido:", JSON.stringify(body, null, 2));
+  if (type === "payment" && action === "payment.updated") {
+    const paymentId = data.id;
 
-  // Puedes verificar si el pago fue aprobado aquí
-  if (body.type === "payment" && body.data?.id) {
-    const paymentId = body.data.id;
+    try {
+      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+        headers: {
+          Authorization: `Bearer TU_ACCESS_TOKEN` // ← reemplaza por tu token de prueba o producción
+        }
+      });
+      const paymentInfo = await response.json();
 
-    // Aquí puedes consultar la API de MercadoPago si lo deseas
-    // O actualizar el estado de la orden en Firestore
+      if (paymentInfo.status === "approved") {
+        const externalReference = paymentInfo.external_reference; // debe ser el ID de tu orden
 
-    return res.status(200).send("Notificación procesada");
+        await admin.firestore()
+          .collection("usuarios")
+          .doc(paymentInfo.payer.id) // o el UID que hayas usado
+          .collection("ordenes")
+          .doc(externalReference)
+          .update({
+            estado: "Pagado"
+          });
+
+        return res.status(200).send("Estado actualizado a Pagado");
+      }
+    } catch (error) {
+      console.error("Error al consultar pago:", error);
+      return res.status(500).send("Error interno");
+    }
   }
 
-  return res.status(400).send("Notificación no válida");
+  res.status(200).send("OK");
 });
