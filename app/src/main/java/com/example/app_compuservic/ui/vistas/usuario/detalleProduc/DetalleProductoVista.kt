@@ -3,6 +3,7 @@ package com.example.app_compuservic.ui.vistas.usuario.detalleProduc
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -10,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -33,6 +35,8 @@ fun DetalleProductoVista(
     var expandirImagen by remember { mutableStateOf(false) }
     var mostrarMas by remember { mutableStateOf(false) }
     var cantidad by remember { mutableStateOf(1) }
+    var imagenAmpliada by remember { mutableStateOf<String?>(null) }
+
 
 
     val carritoViewModel: CarritoViewModel = viewModel()
@@ -138,6 +142,32 @@ fun DetalleProductoVista(
                 ) {
                     Text("Agregar al Carrito")
                 }
+                // Carrusel de imágenes secundarias (urlList)
+                if (!producto.urlList.isNullOrEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    Text("Más imágenes", fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(8.dp))
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(producto.urlList.size) { index ->
+                            val imageUrl = producto.urlList[index]
+                            AsyncImage(
+                                model = imageUrl,
+                                contentDescription = "Imagen adicional $index",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        imagenAmpliada = imageUrl // ✅ Al hacer clic se guarda la URL para ampliarla
+                                    },
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                }
 
             }
         }
@@ -174,4 +204,21 @@ fun DetalleProductoVista(
             fontSize = 14.sp
         )
     }
+    if (imagenAmpliada != null) {
+        AlertDialog(
+            onDismissRequest = { imagenAmpliada = null },
+            confirmButton = {},
+            text = {
+                AsyncImage(
+                    model = imagenAmpliada,
+                    contentDescription = "Imagen ampliada",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        )
+    }
+
 }
