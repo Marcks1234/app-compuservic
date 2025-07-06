@@ -107,7 +107,8 @@ fun NavegadorLateral(
                     scope.launch { drawerState.close() }
                 }
                 DrawerBoton("Mi Perfil", Icons.Default.Person) {
-                    scope.launch { drawerState.close() }
+                    scope.launch { drawerState.close()
+                        navController.navigate("mi_perfil")}
                 }
                 DrawerBoton("Cerrar Sesión", Icons.Default.ExitToApp) {
                     cerrarSesion()

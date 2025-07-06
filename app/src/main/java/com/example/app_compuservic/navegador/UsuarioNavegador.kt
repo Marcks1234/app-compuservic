@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoViewModel
 import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoVistaUsuario
 import com.example.app_compuservic.ui.vistas.usuario.detalleProduc.DetalleProductoViewModel
+import com.example.app_compuservic.ui.vistas.usuario.perfil.MiPerfilVista
 
 @Composable
 fun UsuarioNavegador(
@@ -43,6 +44,10 @@ fun UsuarioNavegador(
             CarritoVistaUsuario(viewModel = carritoViewModel,navController = navController)
 
         }
+        composable("mi_perfil") {
+            MiPerfilVista(navController = navController)
+        }
+
         composable(
             route = "detalle_producto/{productoId}",
             arguments = listOf(navArgument("productoId") { type = NavType.StringType })
@@ -85,6 +90,7 @@ fun UsuarioNavegador(
                 navController = navController
             )
         }
+
 
     }
 }
