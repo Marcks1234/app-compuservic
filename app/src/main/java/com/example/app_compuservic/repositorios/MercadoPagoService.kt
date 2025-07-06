@@ -1,4 +1,5 @@
 package com.example.app_compuservic.repositorios
+
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
@@ -67,4 +68,43 @@ object MercadoPagoService {
 
         return null
     }
+    fun crearPreferenciaDesdeFirebase(
+        total: Double,
+        ordenId: String,
+        email: String
+    ): String? {
+        return try {
+            val url = URL("https://us-central1-appcompuservic.cloudfunctions.net/crearPreferencia")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.doOutput = true
+
+            val body = JSONObject().apply {
+                put("total", total)
+                put("ordenId", ordenId)
+                put("email", email)
+            }
+
+            val writer = OutputStreamWriter(connection.outputStream)
+            writer.write(body.toString())
+            writer.flush()
+            writer.close()
+
+            val responseCode = connection.responseCode
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val jsonResponse = JSONObject(response)
+                jsonResponse.getString("init_point")
+            } else {
+                val error = connection.errorStream?.bufferedReader()?.use { it.readText() }
+                Log.e("MercadoPago", "Error en Firebase Function: $error")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("MercadoPago", "Excepción: ${e.message}")
+            null
+        }
+    }
+
 }

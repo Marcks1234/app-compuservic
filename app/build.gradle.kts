@@ -76,6 +76,8 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.0.1")
 
 
+    implementation ("org.json:json:20211205")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

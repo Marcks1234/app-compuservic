@@ -12,7 +12,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import com.example.app_compuservic.modelos.Orden
 import android.content.Intent
@@ -35,6 +34,8 @@ fun DetalleOrdenVista(
 ) {
     val ordenState: Orden? by viewModel.orden.collectAsState(initial = null)
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
 
     LaunchedEffect(ordenId) {
         viewModel.cargarOrdenPorId(ordenId)
@@ -60,25 +61,24 @@ fun DetalleOrdenVista(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val scope = rememberCoroutineScope()
 
             Button(
                 onClick = {
                     scope.launch {
                         withContext(Dispatchers.IO) {
-                            val url = MercadoPagoService.crearPreferenciaPago(
+                            val url = MercadoPagoService.crearPreferenciaDesdeFirebase(
                                 total = orden.total,
                                 ordenId = orden.id,
                                 email = FirebaseAuth.getInstance().currentUser?.email ?: "correo@default.com"
                             )
 
-                            url?.let {
-                                withContext(Dispatchers.Main) {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+                            withContext(Dispatchers.Main) {
+                                if (url != null) {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                     context.startActivity(intent)
+                                } else {
+                                    Toast.makeText(context, "Error al generar el link de pago", Toast.LENGTH_SHORT).show()
                                 }
-                            } ?: withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Error al generar el link de pago", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -89,13 +89,7 @@ fun DetalleOrdenVista(
                 Text("CONTINUAR", color = Color.White)
             }
 
-            //Button(
-            //onClick = { navController.popBackStack() },
-            //    modifier = Modifier.fillMaxWidth(),
-            //    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
-            //) {
-            //    Text("CONTINUAR", color = Color.White)
-            //}
+
 
             Spacer(modifier = Modifier.height(12.dp))
 
