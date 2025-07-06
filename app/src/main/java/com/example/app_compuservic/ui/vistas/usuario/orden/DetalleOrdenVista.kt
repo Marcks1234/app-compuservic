@@ -45,7 +45,8 @@ fun DetalleOrdenVista(
             Text("Fecha: ${orden.fecha}")
             Text("Estado: ${orden.estado}", color = Color(0xFF0288D1))
             Text("Cantidad de productos: ${orden.productos.size}")
-            Text("Costo:\nTotal: ${"%.2f".format(orden.total)} USD")
+           // Text("Costo:\nTotal: ${"%.2f".format(orden.total)} USD")
+            Text("Total: S/. %.2f".format(orden.total))
             Text("Dirección: ${orden.direccion ?: "Sin dirección"}")
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -75,9 +76,9 @@ fun DetalleOrdenVista(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(item.nombre, fontWeight = FontWeight.Bold)
-                            Text("Precio unidad: ${"%.2f".format(item.precio)} USD")
+                            Text("Precio unidad: S/. %.2f".format(item.precio))
                             Text("Cantidad: ${item.cantidad}")
-                            Text("Precio suma total: ${"%.2f".format(item.precio * item.cantidad)} USD")
+                            Text("Precio suma total: S/. %.2f".format(item.precio * item.cantidad))
                         }
                     }
                 }
