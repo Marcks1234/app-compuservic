@@ -131,10 +131,60 @@ fun CarritoVistaUsuario(
         }
 
         // ✅ Botón fijo inferior
+        // ✅ Botón fijo inferior funcional
+        val viewModelCarrito = viewModel<CarritoViewModel>()
+        val uid = Firebase.auth.currentUser?.uid
+
         Button(
             onClick = {
-                // Acción de confirmar orden (si decides activarla después)
-                Toast.makeText(context, "Confirmar orden (no implementado)", Toast.LENGTH_SHORT).show()
+                if (uid != null) {
+                    val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    val nuevaOrdenId = firestore
+                        .collection("usuarios").document(uid)
+                        .collection("ordenes").document().id
+
+                    // Cargar la dirección del usuario desde Firestore
+                    firestore.collection("usuarios").document(uid).get()
+                        .addOnSuccessListener { doc ->
+                            val direccionGuardada = doc.getString("ubicacion") ?: "Sin dirección"
+
+                            val orden = com.example.app_compuservic.modelos.Orden(
+                                id = nuevaOrdenId,
+                                fecha = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date()),
+                                estado = "Solicitud recibida",
+                                direccion = direccionGuardada,
+                                total = carrito.sumOf {
+                                    val precio = it.producto.precioFinal ?: it.producto.precio
+                                    precio * it.cantidad.toDouble()
+                                },
+                                productos = carrito.map {
+                                    com.example.app_compuservic.modelos.ItemOrden(
+                                        nombre = it.producto.nombre,
+                                        precio = it.producto.precioFinal ?: it.producto.precio,
+                                        cantidad = it.cantidad
+                                    )
+                                }
+                            )
+
+                            // Guardar la orden
+                            firestore.collection("usuarios").document(uid)
+                                .collection("ordenes").document(nuevaOrdenId)
+                                .set(orden)
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "Orden confirmada", Toast.LENGTH_SHORT).show()
+                                    viewModel.limpiarCarrito() // Asegúrate de tener esta función en tu ViewModel
+                                    navController.navigate("detalle_orden/$nuevaOrdenId")
+
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(context, "Error al confirmar orden", Toast.LENGTH_SHORT).show()
+                                }
+
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "No se pudo obtener dirección del usuario", Toast.LENGTH_SHORT).show()
+                        }
+                }
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -146,5 +196,6 @@ fun CarritoVistaUsuario(
         ) {
             Text("CONFIRMAR ORDEN", color = Color.White)
         }
+
     }
 }

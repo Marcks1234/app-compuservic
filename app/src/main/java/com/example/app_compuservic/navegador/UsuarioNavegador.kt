@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoViewModel
 import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoVistaUsuario
 import com.example.app_compuservic.ui.vistas.usuario.detalleProduc.DetalleProductoViewModel
+import com.example.app_compuservic.ui.vistas.usuario.orden.DetalleOrdenVista
 import com.example.app_compuservic.ui.vistas.usuario.perfil.MiPerfilVista
 import com.example.app_compuservic.ui.vistas.usuario.perfil.SeleccionarUbicacionVista
 
@@ -51,6 +52,11 @@ fun UsuarioNavegador(
 
         composable("seleccionar_ubicacion") {
             SeleccionarUbicacionVista(navController = navController)
+        }
+
+        composable("detalle_orden/{ordenId}") { backStackEntry ->
+            val ordenId = backStackEntry.arguments?.getString("ordenId") ?: ""
+            DetalleOrdenVista(ordenId = ordenId, navController = navController)
         }
 
 

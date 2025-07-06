@@ -114,7 +114,6 @@ class CarritoViewModel : ViewModel() {
         }
     }
 
-
     fun limpiarCarrito() {
         _carrito.value = emptyList()
     }
