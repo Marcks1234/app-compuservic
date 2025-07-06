@@ -3,6 +3,7 @@ import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_compuservic.modelos.Producto
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import com.example.app_compuservic.repositorios.CarritoRepositorio
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.launch
 
 class CarritoViewModel : ViewModel() {
     private val _carrito = MutableStateFlow<List<ProductoCarrito>>(emptyList())
@@ -58,7 +60,25 @@ class CarritoViewModel : ViewModel() {
             }
         }
     }
+    fun actualizarCantidad(productoId: String, nuevaCantidad: Int) {
+        val listaActual = _carrito.value.toMutableList()
+        val index = listaActual.indexOfFirst { it.producto.id == productoId }
 
+        if (index != -1) {
+            val productoActualizado = listaActual[index].copy(cantidad = nuevaCantidad)
+            listaActual[index] = productoActualizado
+            _carrito.value = listaActual
+
+            // Actualiza también en Firestore
+            viewModelScope.launch {
+                CarritoRepositorio.guardarProductoEnCarrito(
+                    productoActualizado,
+                    onSuccess = {},
+                    onError = {}
+                )
+            }
+        }
+    }
 
     fun obtenerCarritoDesdeFirestore() {
         val uid = Firebase.auth.currentUser?.uid
@@ -76,18 +96,26 @@ class CarritoViewModel : ViewModel() {
                 _carrito.value = productos
             }
     }
-
     fun eliminarProducto(productoId: String) {
+        // Eliminar de la lista local
         _carrito.value = _carrito.value.filterNot { it.producto.id == productoId }
-        CarritoRepositorio.eliminarProductoDeFirestore(
-            productoId = productoId,
-            onSuccess = { Log.d("CarritoViewModel", "Producto eliminado de Firestore") },
-            onError = { e -> Log.e("CarritoViewModel", "Error al eliminar: ${e.message}") }
-        )
+
+        // Eliminar de Firestore
+        viewModelScope.launch {
+            CarritoRepositorio.eliminarProductoDeFirestore(
+                productoId = productoId,
+                onSuccess = {
+                    Log.d("CarritoViewModel", "Producto eliminado de Firestore")
+                },
+                onError = { e ->
+                    Log.e("CarritoViewModel", "Error al eliminar producto: ${e.message}")
+                }
+            )
+        }
     }
+
 
     fun limpiarCarrito() {
         _carrito.value = emptyList()
     }
 }
-

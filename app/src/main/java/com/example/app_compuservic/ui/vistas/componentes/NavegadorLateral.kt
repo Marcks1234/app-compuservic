@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.StickyNote2
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Divider
@@ -102,13 +103,10 @@ fun NavegadorLateral(
             }
 
             TipoUsuario.usuario -> {
-                DrawerBoton("Tienda", Icons.Default.Store) {
+                DrawerBoton("Inicio", Icons.Default.Home) {
                     scope.launch { drawerState.close() }
                 }
-                DrawerBoton("Favorito", Icons.Default.Favorite) {
-                    scope.launch { drawerState.close() }
-                }
-                DrawerBoton("Carrito", Icons.Default.AddShoppingCart) {
+                DrawerBoton("Mi Perfil", Icons.Default.Person) {
                     scope.launch { drawerState.close() }
                 }
                 DrawerBoton("Cerrar Sesión", Icons.Default.ExitToApp) {

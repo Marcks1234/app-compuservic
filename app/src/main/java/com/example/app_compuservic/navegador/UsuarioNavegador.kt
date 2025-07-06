@@ -20,9 +20,12 @@ import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoVistaUsuario
 import com.example.app_compuservic.ui.vistas.usuario.detalleProduc.DetalleProductoViewModel
 
 @Composable
-fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHostController) {
+fun UsuarioNavegador(
+    raizNavController: NavHostController,
+    navController: NavHostController) {
 
     //agregado
+
     val carritoViewModel: CarritoViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = Tienda.route) {
@@ -37,7 +40,8 @@ fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHos
             FavoritosVistaUsuario(navController = navController)
         }
         composable(route = Carrito.route) {
-            CarritoVistaUsuario(viewModel = carritoViewModel)
+            CarritoVistaUsuario(viewModel = carritoViewModel,navController = navController)
+
         }
         composable(
             route = "detalle_producto/{productoId}",
@@ -59,12 +63,13 @@ fun UsuarioNavegador(raizNavController: NavHostController, navController: NavHos
                     navController = navController, // ✅ se pasa aquí
                     onAgregarAlCarrito = { producto, cantidad ->
                         carritoViewModel.agregarAlCarrito(producto,cantidad)
-                        carritoViewModel.guardarProductoFirestore(producto, cantidad)
 
                     }
                 )
             }
         }
+
+
         composable(
             route = Productos.route,
             arguments = listOf(navArgument("categoriaId") {
