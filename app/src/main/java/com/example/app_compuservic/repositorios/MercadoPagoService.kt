@@ -34,7 +34,17 @@ object MercadoPagoService {
                         put("email", it)
                     })
                 }
+                // URLs de redirección
+                put("back_urls", JSONObject().apply {
+                    put("success", "https://www.tusitio.com/success")
+                    put("failure", "https://www.tusitio.com/failure")
+                    put("pending", "https://www.tusitio.com/pending")
+                })
+
+                put("auto_return", "approved")
+
             }
+            Log.d("MercadoPago", "JSON enviado: ${body.toString(4)}")
 
             val writer = OutputStreamWriter(connection.outputStream)
             writer.write(body.toString())
