@@ -12,20 +12,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.app_compuservic.ui.vistas.usuario.orden.OrdenViewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app_compuservic.modelos.Orden
+import android.content.Intent
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.compose.runtime.rememberCoroutineScope
+import android.widget.Toast
+import com.example.app_compuservic.repositorios.MercadoPagoService
+import com.google.firebase.auth.FirebaseAuth
+
 
 
 @Composable
 fun DetalleOrdenVista(
     ordenId: String,
     navController: NavHostController,
-    viewModel: OrdenViewModel = viewModel()
+    viewModel: OrdenViewModel = viewModel(),
 ) {
     val ordenState: Orden? by viewModel.orden.collectAsState(initial = null)
+    val context = LocalContext.current
 
     LaunchedEffect(ordenId) {
         viewModel.cargarOrdenPorId(ordenId)
@@ -51,13 +60,42 @@ fun DetalleOrdenVista(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            val scope = rememberCoroutineScope()
+
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    scope.launch {
+                        withContext(Dispatchers.IO) {
+                            val url = MercadoPagoService.crearPreferenciaPago(
+                                total = orden.total,
+                                ordenId = orden.id,
+                                email = FirebaseAuth.getInstance().currentUser?.email ?: "correo@default.com"
+                            )
+
+                            url?.let {
+                                withContext(Dispatchers.Main) {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+                                    context.startActivity(intent)
+                                }
+                            } ?: withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Error al generar el link de pago", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
             ) {
                 Text("CONTINUAR", color = Color.White)
             }
+
+            //Button(
+            //onClick = { navController.popBackStack() },
+            //    modifier = Modifier.fillMaxWidth(),
+            //    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
+            //) {
+            //    Text("CONTINUAR", color = Color.White)
+            //}
 
             Spacer(modifier = Modifier.height(12.dp))
 
