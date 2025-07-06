@@ -19,6 +19,7 @@ import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoViewModel
 import com.example.app_compuservic.ui.vistas.usuario.carrito.CarritoVistaUsuario
 import com.example.app_compuservic.ui.vistas.usuario.detalleProduc.DetalleProductoViewModel
 import com.example.app_compuservic.ui.vistas.usuario.perfil.MiPerfilVista
+import com.example.app_compuservic.ui.vistas.usuario.perfil.SeleccionarUbicacionVista
 
 @Composable
 fun UsuarioNavegador(
@@ -47,6 +48,11 @@ fun UsuarioNavegador(
         composable("mi_perfil") {
             MiPerfilVista(navController = navController)
         }
+
+        composable("seleccionar_ubicacion") {
+            SeleccionarUbicacionVista(navController = navController)
+        }
+
 
         composable(
             route = "detalle_producto/{productoId}",

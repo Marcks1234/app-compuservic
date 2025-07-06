@@ -69,6 +69,12 @@ dependencies {
 
     implementation("com.google.firebase:firebase-storage-ktx")
 
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.maps.android:maps-compose:2.11.4")
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+
 
 
     implementation(libs.androidx.core.ktx)

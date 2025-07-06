@@ -42,3 +42,24 @@ fun SolicitarPermisoGaleria(onPermisoConcedido: () -> Unit) {
         }
     }
 }
+
+@Composable
+fun SolicitarPermisosUbicacion(onPermisoConcedido: () -> Unit) {
+    val contexto = LocalContext.current
+    val multiplePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permisos ->
+        val concedido = permisos[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permisos[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (concedido) onPermisoConcedido()
+    }
+
+    LaunchedEffect(Unit) {
+        multiplePermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
+}

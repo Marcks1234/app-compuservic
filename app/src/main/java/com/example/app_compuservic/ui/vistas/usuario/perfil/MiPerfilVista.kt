@@ -1,10 +1,12 @@
 package com.example.app_compuservic.ui.vistas.usuario.perfil
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
@@ -13,10 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import android.location.Geocoder
+import androidx.compose.ui.platform.LocalContext
+import java.util.Locale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -24,6 +30,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun MiPerfilVista(navController: NavHostController) {
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     val db = FirebaseFirestore.getInstance()
+    val context = LocalContext.current
+
 
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -32,6 +40,27 @@ fun MiPerfilVista(navController: NavHostController) {
     var ubicacion by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
+    //  Lee la LatLng y actualiza el campo
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    savedStateHandle?.get<LatLng>("ubicacionSeleccionada")?.let { latLng ->
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val direcciones = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+        val direccionFormateada = if (!direcciones.isNullOrEmpty()) {
+            direcciones[0].getAddressLine(0)
+        } else {
+            "${latLng.latitude}, ${latLng.longitude}"
+        }
+
+        ubicacion = direccionFormateada
+
+        // Guardar automáticamente en Firestore si deseas
+        db.collection("usuarios").document(uid).update("ubicacion", direccionFormateada)
+
+        savedStateHandle.remove<LatLng>("ubicacionSeleccionada")
+    }
+
+
+    // Cargar datos actuales del usuario
     LaunchedEffect(Unit) {
         db.collection("usuarios").document(uid).get().addOnSuccessListener { doc ->
             nombre = doc.getString("nombre") ?: ""
@@ -48,7 +77,6 @@ fun MiPerfilVista(navController: NavHostController) {
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título
         Text(
             text = "MI PERFIL",
             style = MaterialTheme.typography.headlineSmall.copy(
@@ -59,7 +87,6 @@ fun MiPerfilVista(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Icono circular
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -78,23 +105,65 @@ fun MiPerfilVista(navController: NavHostController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // Campos de texto
-        listOf(
-            Triple(nombre, "Nombres Completos") { it: String -> nombre = it },
-            Triple(email, "Email") { it: String -> email = it },
-            Triple(telefono, "Teléfono") { it: String -> telefono = it },
-            Triple(dni, "DNI") { it: String -> dni = it },
-            Triple(ubicacion, "Ubicación") { it: String -> ubicacion = it }
-        ).forEach { (valor, label, onChange) ->
-            OutlinedTextField(
-                value = valor,
-                onValueChange = onChange,
-                label = { Text(label) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(12.dp)
-            )
-        }
+        OutlinedTextField(
+            value = nombre,
+            onValueChange = { nombre = it },
+            label = { Text("Nombres Completos") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        OutlinedTextField(
+            value = telefono,
+            onValueChange = { telefono = it },
+            label = { Text("Teléfono") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        OutlinedTextField(
+            value = dni,
+            onValueChange = { dni = it },
+            label = { Text("DNI") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        OutlinedTextField(
+            value = ubicacion,
+            onValueChange = { ubicacion = it },
+            label = { Text("Ubicación") },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "Seleccionar ubicación",
+                    tint = Color(0xFF6A1B9A),
+                    modifier = Modifier.clickable {
+                        navController.navigate("seleccionar_ubicacion")
+                    }
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp)
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
