@@ -31,10 +31,13 @@ fun DetalleOrdenVista(
     ordenId: String,
     navController: NavHostController,
     viewModel: OrdenViewModel = viewModel(),
+
 ) {
     val ordenState: Orden? by viewModel.orden.collectAsState(initial = null)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val user = FirebaseAuth.getInstance().currentUser
+
 
 
     LaunchedEffect(ordenId) {
@@ -55,7 +58,7 @@ fun DetalleOrdenVista(
             Text("Fecha: ${orden.fecha}")
             Text("Estado: ${orden.estado}", color = Color(0xFF0288D1))
             Text("Cantidad de productos: ${orden.productos.size}")
-           // Text("Costo:\nTotal: ${"%.2f".format(orden.total)} USD")
+            // Text("Costo:\nTotal: ${"%.2f".format(orden.total)} USD")
             Text("Total: S/. %.2f".format(orden.total))
             Text("Dirección: ${orden.direccion ?: "Sin dirección"}")
 
@@ -66,7 +69,7 @@ fun DetalleOrdenVista(
                 onClick = {
                     scope.launch {
                         withContext(Dispatchers.IO) {
-                            val url = MercadoPagoService.crearPreferenciaDesdeFirebase(
+                            val url = MercadoPagoService.crearPreferenciaPago(
                                 total = orden.total,
                                 ordenId = orden.id,
                                 email = FirebaseAuth.getInstance().currentUser?.email ?: "correo@default.com"

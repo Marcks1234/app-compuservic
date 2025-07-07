@@ -10,10 +10,10 @@ import java.net.URL
 
 object MercadoPagoService {
 
-    private const val ACCESS_TOKEN = "TEST-5966536219334383-062903-36ce8d0ac0af4d245ec28717028e5a37-2286021716" // ← tu access token de prueba
+    private const val ACCESS_TOKEN = "TEST-5966536219334383-062903-36ce8d0ac0af4d245ec28717028e5a37-2286021716"
 
     fun crearPreferenciaPago(total: Double, ordenId: String, email: String? = null): String? {
-        try {
+        return try {
             val url = URL("https://api.mercadopago.com/checkout/preferences")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
@@ -35,76 +35,32 @@ object MercadoPagoService {
                         put("email", it)
                     })
                 }
-                // URLs de redirección
                 put("back_urls", JSONObject().apply {
                     put("success", "https://www.tusitio.com/success")
                     put("failure", "https://www.tusitio.com/failure")
                     put("pending", "https://www.tusitio.com/pending")
                 })
-
                 put("auto_return", "approved")
-
             }
-            Log.d("MercadoPago", "JSON enviado: ${body.toString(4)}")
 
             val writer = OutputStreamWriter(connection.outputStream)
             writer.write(body.toString())
             writer.flush()
             writer.close()
 
-            val responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_CREATED) {
+            if (connection.responseCode == HttpURLConnection.HTTP_CREATED) {
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
-                val jsonResponse = JSONObject(response)
-                return jsonResponse.getString("init_point")
+                val json = JSONObject(response)
+                return json.getString("init_point")
             } else {
                 val error = connection.errorStream?.bufferedReader()?.use { it.readText() }
                 Log.e("MercadoPago", "Error al crear preferencia: $error")
             }
 
-        } catch (e: Exception) {
-            Log.e("MercadoPago", "Excepción: ${e.message}")
-        }
-
-        return null
-    }
-    fun crearPreferenciaDesdeFirebase(
-        total: Double,
-        ordenId: String,
-        email: String
-    ): String? {
-        return try {
-            val url = URL("https://us-central1-appcompuservic.cloudfunctions.net/crearPreferencia")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
-            connection.doOutput = true
-
-            val body = JSONObject().apply {
-                put("total", total)
-                put("ordenId", ordenId)
-                put("email", email)
-            }
-
-            val writer = OutputStreamWriter(connection.outputStream)
-            writer.write(body.toString())
-            writer.flush()
-            writer.close()
-
-            val responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                val response = connection.inputStream.bufferedReader().use { it.readText() }
-                val jsonResponse = JSONObject(response)
-                jsonResponse.getString("init_point")
-            } else {
-                val error = connection.errorStream?.bufferedReader()?.use { it.readText() }
-                Log.e("MercadoPago", "Error en Firebase Function: $error")
-                null
-            }
+            null
         } catch (e: Exception) {
             Log.e("MercadoPago", "Excepción: ${e.message}")
             null
         }
     }
-
 }
