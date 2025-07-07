@@ -11,12 +11,16 @@ import kotlinx.coroutines.launch
 
 
 class PrincipalViewModel(
+    //repositorio: maneja login, logout y datos del usuario con Firebase Auth.
+    //repositorioStore: accede a Firestore (por ejemplo, para obtener categorías).
     private val repositorio: FireBaseAuthRepositorio = FireBaseAuthRepositorio(),
     private val repositorioStore: FireStoreRepositorio = FireStoreRepositorio()
 ) :
     ViewModel() {
 
-
+    //Es un StateFlow que contiene la lista de categorías.
+    //Se usa para mostrar las categorías en Compose.
+    //private set = Solo se puede modificar desde dentro del ViewModel.
     var categorias = MutableStateFlow<List<Categoria>>(emptyList())
         private set
 
@@ -24,7 +28,7 @@ class PrincipalViewModel(
     fun cerrarCuenta() {
         repositorio.cerrarCuenta()
     }
-
+    //Devuelve true si hay un usuario logueado.
     fun existeCuenta(): Boolean {
         return repositorio.existeCuenta()
     }

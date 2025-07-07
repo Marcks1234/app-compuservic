@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 class FireStoreRepositorio {
     private val db = Firebase.firestore
 
-
+//Guarda un nuevo usuario en la colección usuarios/{uid}
     suspend fun agregarDatosUsuario(uid: String, nuevoUsuario: Usuario): EstadoUsuario {
         return try {
             db.collection(C_USUARIOS.valor).document(uid).set(nuevoUsuario).await()
@@ -30,6 +30,7 @@ class FireStoreRepositorio {
             EstadoUsuario.Error(e.message ?: "Error desconocido")
         }
     }
+    //Devuelve si el usuario es administrador, usuario o nuevo_usuario.
     suspend fun obtenerTipoUsuario(uid: String): TipoUsuario {
         val esAdministrador =
             db.collection("usuarios").document(uid).get().await().getBoolean("administrador")
@@ -39,13 +40,14 @@ class FireStoreRepositorio {
             null -> TipoUsuario.nuevo_usuario
         }
     }
-
+    //Obtiene el nombre del usuario logueado, si no tiene nombre,
+    // devuelve “usuario sin nombre”.
     suspend fun obtenerDatosUsuarioActual(uidActual: String): String = withContext(Dispatchers.IO) {
         val consulta = db.collection("usuarios").document(uidActual).get().await()
         consulta.toObject(Usuario::class.java)?.nombre ?: "usuario sin nombre"
     }
 
-
+    // Devuelve una lista de categorías en tiempo real usando callbackFlow.
     fun obtenerCategorias(): Flow<Estados<List<Categoria>>> = callbackFlow {
         val escucha = db.collection(C_CATEGORIAS.valor).addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -59,8 +61,9 @@ class FireStoreRepositorio {
         }
         awaitClose { escucha.remove() }
     }
+    //CATEGORIA Y PRODUCTOS //
 
-
+    //Devuelve productos de una categoría específica, escuchando en tiempo real.
     fun obtenerProductos(categoriaId: String): Flow<Estados<List<Producto>>> = callbackFlow {
         val escucha = db.collection("productos")
             .whereEqualTo("categoriaId", categoriaId)  // Filtramos por categoriaId en lugar de categoriaNombre
@@ -93,18 +96,21 @@ class FireStoreRepositorio {
     }
 
 
-    //agregamos esto:
+    //Agrega un nuevo producto a la colección productos.
     suspend fun agregarProducto(producto: Producto) {
         db.collection("productos").add(producto).await()
     }
 
+    // FAVORITOS //
 
+    //Devuelve un Set de IDs de productos favoritos de un usuario.
     suspend fun obtenerIdsFavoritos(uid: String): Set<String> = withContext(Dispatchers.IO) {
         val snapshot = db.collection("usuarios")
             .document(uid).collection("favoritos").get().await()
         snapshot.documents.map { it.id }.toSet()
     }
 
+    //Cambia el estado de un producto entre favorito y no favorito.
     suspend fun cambiarFavorito(uid: String, producto: Producto, esFavorito: Boolean) =
         withContext(Dispatchers.IO) {
             val documentoReferenciaFavorito =
@@ -118,7 +124,8 @@ class FireStoreRepositorio {
             }
         }
 
-
+    //Escucha los productos favoritos del usuario y actualiza
+    // en tiempo real (usado en vistas con Flow).
     fun escucharFavoritos(uid: String): Flow<List<Producto>> = callbackFlow {
         val coleccion = db.collection("usuarios").document(uid).collection("favoritos")
 
@@ -153,6 +160,7 @@ class FireStoreRepositorio {
         awaitClose { listener.remove() }
     }
 
+    //Guarda un producto dentro del carrito del usuario usuarios/{userId}/carrito.
     suspend fun agregarAlCarrito(userId: String, producto: Producto){
 
         db.collection("usuarios").document(userId).collection("carrito").add(producto).await()

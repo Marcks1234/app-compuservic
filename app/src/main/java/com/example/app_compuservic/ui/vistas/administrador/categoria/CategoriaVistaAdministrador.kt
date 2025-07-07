@@ -34,12 +34,13 @@ fun CategoriasVista() {
     val db = FirebaseFirestore.getInstance()
     val scope = rememberCoroutineScope()
 
-    var nombreCategoria by remember { mutableStateOf("") }
-    var imagenUrl by remember { mutableStateOf("") }
-    var imagenUri by remember { mutableStateOf<Uri?>(null) }
-    var categorias by remember { mutableStateOf(listOf<Map<String, String>>()) }
-    var editandoId by remember { mutableStateOf<String?>(null) }
+    var nombreCategoria by remember { mutableStateOf("") } //Guarda el texto que escribe el usuario.
+    var imagenUrl by remember { mutableStateOf("") }       //Guarda la URL de la imagen.
+    var imagenUri by remember { mutableStateOf<Uri?>(null) }//Contiene la imagen local seleccionada (no subida aún).
+    var categorias by remember { mutableStateOf(listOf<Map<String, String>>()) } //Lista de categorías cargadas desde Firebase.
+    var editandoId by remember { mutableStateOf<String?>(null) }//Si no es null, se está editando una categoría existente.
 
+    //Lanza la galería para seleccionar una imagen. Guarda su uri y lo muestra en pantalla.
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         imagenUri = uri
         imagenUrl = uri.toString()
@@ -167,6 +168,7 @@ fun CategoriasVista() {
             Text("Lista de categorías", fontSize = 20.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(12.dp))
 
+            //LISTADO DE CATEGORÍAS//
             categorias.forEach { categoria ->
                 Card(
                     modifier = Modifier

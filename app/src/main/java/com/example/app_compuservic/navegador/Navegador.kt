@@ -22,6 +22,8 @@ import com.example.app_compuservic.ui.vistas.usuario.tienda.TiendaVistaUsuario
 @Composable
 fun Navegador(navController: NavHostController) {
 
+    //Define el contenedor de navegación. --> la pantalla incial sera la del login .
+
     NavHost(navController = navController, startDestination = Login.route) {
         composable(route = Login.route) {
             LoginVista(
@@ -61,10 +63,10 @@ fun Navegador(navController: NavHostController) {
             )
         }
         composable(route = Rutas.Productos.route) {
-            // Aquí muestra el "placeholder" o la vista de productos del administrador por construir
             Text("Vista de productos del administrador (por construir)")
         }
 
+        // Ruta con parámetro dinámico : Esta pantalla recibe un parámetro (categoriaId) en la URL
         composable(route = "productos/{categoriaId}") { backStackEntry ->
             val categoriaId = backStackEntry.arguments?.getString("categoriaId") ?: ""
             ProductosVista(categoriaId = categoriaId, navController = navController)
@@ -90,7 +92,8 @@ fun Navegador(navController: NavHostController) {
 
 }
 
-
+//Sirve para navegar a otra pantalla y
+// opcionalmente eliminar del historial las anteriores.
 fun navegarHastaPantalla(
     navController: NavHostController,
     direccion: Rutas,

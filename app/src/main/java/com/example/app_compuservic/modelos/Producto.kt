@@ -14,3 +14,5 @@ data class Producto(
     val url: String = "",
     val urlList: List<String> = emptyList<String>()
 ) : java.io.Serializable
+//Serializable para permitir que los objetos
+//Producto se puedan pasar entre pantallas

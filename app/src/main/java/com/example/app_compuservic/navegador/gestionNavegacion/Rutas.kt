@@ -2,6 +2,7 @@ package com.example.app_compuservic.navegador.gestionNavegacion
 
 sealed class Rutas(val route: String) {
 
+ //   Esto crea una constante llamada Login que representa la ruta "login"
     object Login : Rutas("login")
     object Registro : Rutas("registro")
     object PrincipalUsuario : Rutas("principalUsuario")
@@ -13,3 +14,4 @@ sealed class Rutas(val route: String) {
     object ListaProductos : Rutas("lista_productos")
 
 }
+

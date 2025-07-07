@@ -10,7 +10,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+//es un botón de menú reutilizable
+//Muestra ícono y texto.
+//Ejecuta una acción al hacer clic.
+//Ideal para menús laterales (Drawers) o barras de navegación.
 @Composable
 fun DrawerBoton(texto: String, icono: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     TextButton(
