@@ -5,18 +5,12 @@ const fetch = require("node-fetch");
 admin.initializeApp();
 
 const ACCESS_TOKEN = "TEST-5966536219334383-062903-36ce8d0ac0af4d245ec28717028e5a37-2286021716";
-const WEBHOOK_SECRET = "43bf4b3b581a82ddb16a74c8956adee11bd855cee6422560a0b339ed8f6c9fe7";
 
-// ✅ WEBHOOK DE MERCADO PAGO
 exports.mercadoPagoWebhook = functions.https.onRequest(async (req, res) => {
-  const signature = req.get("x-signature");
-  if (signature !== WEBHOOK_SECRET) {
-    return res.status(401).send("Unauthorized");
-  }
-
   const { type, data, action } = req.body;
 
-  if (type === "payment" && (action === "payment.updated" || action === "payment.created")) {
+  // ✅ Solo procesamos payment.updated
+  if (type === "payment" && action === "payment.updated") {
     const paymentId = data.id;
 
     try {
@@ -28,18 +22,22 @@ exports.mercadoPagoWebhook = functions.https.onRequest(async (req, res) => {
 
       const paymentInfo = await paymentRes.json();
       const estado = paymentInfo.status;
-      const ordenId = paymentInfo.external_reference;
-      const uid = paymentInfo.payer?.id || "sin_uid";
+      const external = paymentInfo.external_reference;
 
-      if (!ordenId) return res.status(400).send("Sin referencia externa");
+      if (!external || !external.includes("|")) {
+        console.error("❌ external_reference inválido:", external);
+        return res.status(400).send("Referencia externa inválida");
+      }
 
-      // Actualizar orden en usuario
+      const [uid, ordenId] = external.split("|");
+
+      // ✅ Actualizar orden del usuario
       await admin.firestore()
         .collection("usuarios").doc(uid)
         .collection("ordenes").doc(ordenId)
         .update({ estado });
 
-      // Guardar en 'compras'
+      // ✅ Guardar compra global
       await admin.firestore()
         .collection("compras")
         .doc(ordenId)
@@ -47,17 +45,20 @@ exports.mercadoPagoWebhook = functions.https.onRequest(async (req, res) => {
           uid,
           ordenId,
           estado,
-          metodo: paymentInfo.payment_method_id,
-          monto: paymentInfo.transaction_amount,
-          fecha: new Date().toISOString()
+          metodo: paymentInfo.payment_method_id || "desconocido",
+          monto: paymentInfo.transaction_amount || 0,
+          fecha: new Date().toISOString(),
+          email: paymentInfo.payer?.email || "sin_email"
         });
 
-      return res.status(200).send("Webhook procesado");
+      console.log("✅ Webhook procesado correctamente");
+      return res.status(200).send("OK");
+
     } catch (e) {
-      console.error("Error en webhook:", e);
+      console.error("❌ Error en Webhook:", e);
       return res.status(500).send("Error interno");
     }
   }
 
-  res.status(200).send("OK");
+  return res.status(200).send("Evento ignorado");
 });

@@ -72,9 +72,9 @@ fun DetalleOrdenVista(
                             val url = MercadoPagoService.crearPreferenciaPago(
                                 total = orden.total,
                                 ordenId = orden.id,
-                                email = FirebaseAuth.getInstance().currentUser?.email ?: "correo@default.com"
+                                email = FirebaseAuth.getInstance().currentUser?.email ?: "correo@default.com",
+                                uid = FirebaseAuth.getInstance().currentUser?.uid ?: "sin_uid"
                             )
-
                             withContext(Dispatchers.Main) {
                                 if (url != null) {
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))

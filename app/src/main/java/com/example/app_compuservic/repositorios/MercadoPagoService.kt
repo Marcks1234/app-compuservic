@@ -10,9 +10,15 @@ import java.net.URL
 
 object MercadoPagoService {
 
-    private const val ACCESS_TOKEN = "TEST-5966536219334383-062903-36ce8d0ac0af4d245ec28717028e5a37-2286021716"
+    private const val ACCESS_TOKEN =
+        "TEST-5966536219334383-062903-36ce8d0ac0af4d245ec28717028e5a37-2286021716"
 
-    fun crearPreferenciaPago(total: Double, ordenId: String, email: String? = null): String? {
+    fun crearPreferenciaPago(
+        total: Double,
+        ordenId: String,
+        email: String? = null,
+        uid: String
+    ): String? {
         return try {
             val url = URL("https://api.mercadopago.com/checkout/preferences")
             val connection = url.openConnection() as HttpURLConnection
@@ -30,6 +36,7 @@ object MercadoPagoService {
                         put("currency_id", "PEN")
                     })
                 })
+                put("external_reference", "$uid|$ordenId") // ← IMPORTANTE
                 email?.let {
                     put("payer", JSONObject().apply {
                         put("email", it)
